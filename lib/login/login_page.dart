@@ -4,7 +4,7 @@ import '../utils/alert_helper.dart';
 import 'bloc/login_bloc.dart';
 import 'bloc/login_event.dart';
 import 'bloc/login_state.dart';
-import '../home/home_page.dart';
+import '../colaboradores/colaborador_list_screen.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -41,12 +41,12 @@ class _LoginPageState extends State<LoginPage> {
                 isSuccess: true,
               );
               
-              // Navigate to home page after successful login
-              // Future.delayed(const Duration(seconds: 1), () {
-              //   Navigator.of(context).pushReplacement(
-              //     MaterialPageRoute(builder: (_) => const HomePage()),
-              //   );
-              // });
+              // Navigate to colaboradores page after successful login
+              Future.delayed(const Duration(seconds: 1), () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const ColaboradorListScreen()),
+                );
+              });
             } else if (state is LoginFailure) {
               AlertHelper.showAlert(
                 context: context,
