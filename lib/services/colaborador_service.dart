@@ -1,27 +1,54 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/colaborador_model.dart';
 import '../models/dropdown_models.dart';
+import '../services/auth_service.dart';
 
 class ColaboradorService {
   final String baseUrl;
   final String endpoint = 'academiafarsiman/personascolaboradores';
-  
-  ColaboradorService({required this.baseUrl});
+  final AuthService? authService;
 
-  // Get all colaboradores
+  ColaboradorService({
+    required this.baseUrl,
+    this.authService,
+  });
+
+  HttpClient _createHttpClient() {
+    HttpClient httpClient = HttpClient()
+      ..badCertificateCallback = 
+          ((X509Certificate cert, String host, int port) => true);
+    return httpClient;
+  }
+
+  void _addAuthHeaders(HttpClientRequest request) {
+    request.headers.set('Content-Type', 'application/json');
+    
+    if (authService != null && authService!.authToken != null) {
+      request.headers.set('Authorization', 'Bearer ${authService!.authToken}');
+    }
+  }
+
   Future<List<ColaboradorGetAllDto>> getAll() async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/$endpoint'),
-      );
+      final httpClient = _createHttpClient();
+      final request = await httpClient.getUrl(Uri.parse('$baseUrl/$endpoint'));
+      _addAuthHeaders(request);
+      
+      final response = await request.close();
+      final responseBody = await response.transform(utf8.decoder).join();
+      
+      httpClient.close();
+
+      print('GetAll response: $responseBody');
+
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
+        final Map<String, dynamic> responseData = json.decode(responseBody);
         
         if (responseData['success'] == true) {
-          
           final List<dynamic> colaboradoresData = responseData['data'];
-          print('Datos: $colaboradoresData');
+          
           return colaboradoresData
               .map((item) => ColaboradorGetAllDto.fromJson(item))
               .toList();
@@ -32,93 +59,151 @@ class ColaboradorService {
         throw Exception('Failed to load colaboradores: ${response.statusCode}');
       }
     } catch (e) {
+      print('Error detallado en getAll: $e');
       throw Exception('Error fetching colaboradores: $e');
     }
   }
 
-  // Create colaborador
-  Future<Colaborador> create(CreatePersonaColaboradorDto dto) async {
+  Future<Map<String, dynamic>> create(CreatePersonaColaboradorDto dto) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/$endpoint'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(dto.toJson()),
-      );
+      final httpClient = _createHttpClient();
+      final request = await httpClient.postUrl(Uri.parse('$baseUrl/$endpoint'));
+      _addAuthHeaders(request);
+      
+      request.write(json.encode(dto.toJson()));
+      
+      final response = await request.close();
+      final responseBody = await response.transform(utf8.decoder).join();
+      
+      httpClient.close();
 
+      final Map<String, dynamic> responseData = json.decode(responseBody);
+      print('Create response: $responseData');
+      
       if (response.statusCode == 201 || response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        
-        // Verificar que la respuesta sea exitosa
         if (responseData['success'] == true) {
-          // Acceder directamente a la propiedad 'data' que contiene el colaborador creado
-          return Colaborador.fromJson(responseData['data']);
+          return {
+            'colaborador': responseData['data'] != null 
+                ? Colaborador.fromJson(responseData['data']) 
+                : null,
+            'message': responseData['message'] ?? 'Colaborador creado exitosamente',
+            'success': true
+          };
         } else {
-          throw Exception('Error en la respuesta: ${responseData['message']}');
+          return {
+            'colaborador': null,
+            'message': responseData['message'] ?? 'Error al crear colaborador',
+            'success': false
+          };
         }
       } else {
-        throw Exception('Failed to create colaborador: ${response.statusCode}');
+        return {
+          'colaborador': null,
+          'message': 'Error: ${response.statusCode} - ${responseData['message'] ?? 'Error desconocido'}',
+          'success': false
+        };
       }
     } catch (e) {
-      throw Exception('Error creating colaborador: $e');
+      print('Error detallado en create: $e');
+      return {
+        'colaborador': null,
+        'message': 'Error al crear colaborador: $e',
+        'success': false
+      };
     }
   }
 
-  // Update colaborador
-  Future<Colaborador> update(int id, CreatePersonaColaboradorDto dto) async {
+  Future<Map<String, dynamic>> update(int id, CreatePersonaColaboradorDto dto) async {
     try {
-      final response = await http.put(
-        Uri.parse('$baseUrl/$endpoint/$id'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(dto.toJson()),
-      );
+      final httpClient = _createHttpClient();
+      final request = await httpClient.putUrl(Uri.parse('$baseUrl/$endpoint/$id'));
+      _addAuthHeaders(request);
+      
+      request.write(json.encode(dto.toJson()));
+      
+      final response = await request.close();
+      final responseBody = await response.transform(utf8.decoder).join();
+      
+      httpClient.close();
 
+      final Map<String, dynamic> responseData = json.decode(responseBody);
+      print('Update response: $responseData');
+      
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        
-        // Verificar que la respuesta sea exitosa
         if (responseData['success'] == true) {
-          // Acceder directamente a la propiedad 'data' que contiene el colaborador actualizado
-          return Colaborador.fromJson(responseData['data']);
+          return {
+            'colaborador': responseData['data'] != null 
+                ? Colaborador.fromJson(responseData['data']) 
+                : null,
+            'message': responseData['message'] ?? 'Colaborador actualizado exitosamente',
+            'success': true
+          };
         } else {
-          throw Exception('Error en la respuesta: ${responseData['message']}');
+          return {
+            'colaborador': null,
+            'message': responseData['message'] ?? 'Error al actualizar colaborador',
+            'success': false
+          };
         }
       } else {
-        throw Exception('Failed to update colaborador: ${response.statusCode}');
+        return {
+          'colaborador': null,
+          'message': 'Error: ${response.statusCode} - ${responseData['message'] ?? 'Error desconocido'}',
+          'success': false
+        };
       }
     } catch (e) {
-      throw Exception('Error updating colaborador: $e');
+      print('Error detallado en update: $e');
+      return {
+        'colaborador': null,
+        'message': 'Error al actualizar colaborador: $e',
+        'success': false
+      };
     }
   }
 
-  // Delete colaborador
-  Future<bool> delete(int id) async {
+  Future<Map<String, dynamic>> delete(int id) async {
     try {
-      final response = await http.delete(
-        Uri.parse('$baseUrl/$endpoint/$id'),
-        headers: {'Content-Type': 'application/json'},
-      );
+      final httpClient = _createHttpClient();
+      final request = await httpClient.deleteUrl(Uri.parse('$baseUrl/$endpoint/$id'));
+      _addAuthHeaders(request);
+      
+      final response = await request.close();
+      final responseBody = await response.transform(utf8.decoder).join();
+      
+      httpClient.close();
 
+      final Map<String, dynamic> responseData = json.decode(responseBody);
+      print('Delete response: $responseData');
+      
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        
-        // Verificar que la respuesta sea exitosa
         if (responseData['success'] == true) {
-          // Acceder directamente a la propiedad 'data' que contiene el resultado de la eliminación
-          return responseData['data'] as bool;
+          return {
+            'success': true,
+            'message': responseData['message'] ?? 'Colaborador eliminado exitosamente'
+          };
         } else {
-          throw Exception('Error en la respuesta: ${responseData['message']}');
+          return {
+            'success': false,
+            'message': responseData['message'] ?? 'Error al eliminar colaborador'
+          };
         }
       } else {
-        throw Exception('Failed to delete colaborador: ${response.statusCode}');
+        return {
+          'success': false,
+          'message': 'Error: ${response.statusCode} - ${responseData['message'] ?? 'Error desconocido'}'
+        };
       }
     } catch (e) {
-      throw Exception('Error deleting colaborador: $e');
+      print('Error detallado en delete: $e');
+      return {
+        'success': false,
+        'message': 'Error al eliminar colaborador: $e'
+      };
     }
   }
 
-  // Mock methods for dropdown data (in a real app, these would be API calls)
   Future<List<Ciudad>> getCiudades() async {
-    // Simulating API call
     await Future.delayed(const Duration(milliseconds: 300));
     return [
       Ciudad(ciudadId: 1, nombre: 'San Pedro Sula'),
@@ -127,7 +212,6 @@ class ColaboradorService {
   }
 
   Future<List<Rol>> getRoles() async {
-    // Simulating API call
     await Future.delayed(const Duration(milliseconds: 300));
     return [
       Rol(rolId: 1, nombre: 'Administrador'),
@@ -137,7 +221,6 @@ class ColaboradorService {
   }
 
   Future<List<Cargo>> getCargos() async {
-    // Simulating API call
     await Future.delayed(const Duration(milliseconds: 300));
     return [
       Cargo(cargoId: 1, nombre: 'Gerente'),
@@ -147,7 +230,6 @@ class ColaboradorService {
   }
 
   Future<List<EstadoCivil>> getEstadosCiviles() async {
-    // Simulating API call
     await Future.delayed(const Duration(milliseconds: 300));
     return [
       EstadoCivil(estadoCivilId: 1, nombre: 'Soltero'),

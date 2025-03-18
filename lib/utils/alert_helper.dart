@@ -8,10 +8,8 @@ class AlertHelper {
     required bool isSuccess,
     Duration duration = const Duration(seconds: 3),
   }) {
-    // Dismiss any existing alerts
     _dismissCurrentAlert(context);
     
-    // Create overlay entry
     final overlayState = Overlay.of(context);
     OverlayEntry? overlayEntry;
     
@@ -26,17 +24,14 @@ class AlertHelper {
       ),
     );
     
-    // Show the overlay
     overlayState.insert(overlayEntry);
     
-    // Auto dismiss after duration
     Future.delayed(duration, () {
       overlayEntry?.remove();
     });
   }
   
   static void _dismissCurrentAlert(BuildContext context) {
-    // This would be implemented if you want to track and dismiss existing alerts
   }
 }
 

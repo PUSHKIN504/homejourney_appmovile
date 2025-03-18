@@ -8,6 +8,7 @@ import '../widgets/form_fields.dart';
 import 'bloc/colaborador_bloc.dart';
 import 'bloc/colaborador_event.dart';
 import 'bloc/colaborador_state.dart';
+import 'map_screen.dart';
 
 class ColaboradorFormScreen extends StatefulWidget {
   final int? colaboradorId;
@@ -20,7 +21,8 @@ class ColaboradorFormScreen extends StatefulWidget {
 
 class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
+  // Controllers
   final _nombreController = TextEditingController();
   final _apellidoController = TextEditingController();
   final _emailController = TextEditingController();
@@ -28,28 +30,61 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
   final _direccionController = TextEditingController();
   final _latitudController = TextEditingController();
   final _longitudController = TextEditingController();
-  
+
+  // Dropdown values
   String? _sexo;
   Ciudad? _selectedCiudad;
   Rol? _selectedRol;
   Cargo? _selectedCargo;
   EstadoCivil? _selectedEstadoCivil;
   bool _activo = true;
-  
-  List<Ciudad> _ciudades = [];
-  List<Rol> _roles = [];
-  List<Cargo> _cargos = [];
-  List<EstadoCivil> _estadosCiviles = [];
-  
+
+  // Flag para controlar si ya se cargaron los datos iniciales
+  bool _dataInitialized = false;
+
   @override
   void initState() {
     super.initState();
-    context.read<ColaboradorBloc>().add(LoadDropdownData());
     
+    // Set default values for latitude and longitude
     _latitudController.text = "15.5000";
     _longitudController.text = "-88.0333";
+    
+    // Cargar datos de dropdown si no están disponibles
+    _loadDropdownData();
   }
-  
+
+  void _loadDropdownData() {
+    // Verificamos si ya tenemos los datos en el estado
+    final state = context.read<ColaboradorBloc>().state;
+    if (state is ColaboradorDataState) {
+      if (state.ciudades == null || state.roles == null || 
+          state.cargos == null || state.estadosCiviles == null) {
+        context.read<ColaboradorBloc>().add(LoadDropdownData());
+      } else {
+        _initializeDropdownValues(state);
+      }
+    } else {
+      // Si no tenemos un estado compuesto, cargamos los datos
+      context.read<ColaboradorBloc>().add(LoadDropdownData());
+    }
+  }
+
+  void _initializeDropdownValues(ColaboradorDataState state) {
+    if (!_dataInitialized && state.ciudades != null && state.roles != null && 
+        state.cargos != null && state.estadosCiviles != null) {
+      setState(() {
+        // Set defaults
+        if (state.ciudades!.isNotEmpty) _selectedCiudad = state.ciudades!.first;
+        if (state.roles!.isNotEmpty) _selectedRol = state.roles!.first;
+        if (state.cargos!.isNotEmpty) _selectedCargo = state.cargos!.first;
+        if (state.estadosCiviles!.isNotEmpty) _selectedEstadoCivil = state.estadosCiviles!.first;
+        _sexo = 'M'; // Default value
+        _dataInitialized = true;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _nombreController.dispose();
@@ -61,7 +96,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
     _longitudController.dispose();
     super.dispose();
   }
-  
+
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       final colaborador = CreatePersonaColaboradorDto(
@@ -73,7 +108,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
         activo: _activo,
         estadoCivilId: _selectedEstadoCivil?.estadoCivilId,
         ciudadId: _selectedCiudad!.ciudadId,
-        usuarioCrea: 1, 
+        usuarioCrea: 1, // Hardcoded for now
         rolId: _selectedRol!.rolId,
         cargoId: _selectedCargo!.cargoId,
         direccion: _direccionController.text,
@@ -94,7 +129,30 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
       Navigator.pop(context);
     }
   }
-  
+
+  void _openMapScreen() {
+    // Obtener los valores actuales de latitud y longitud
+    double latitude = double.tryParse(_latitudController.text) ?? 15.5000;
+    double longitude = double.tryParse(_longitudController.text) ?? -88.0333;
+    
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapScreen(
+          initialLatitude: latitude,
+          initialLongitude: longitude,
+          onLocationSelected: (lat, lng, address) {
+            setState(() {
+              _latitudController.text = lat.toString();
+              _longitudController.text = lng.toString();
+              _direccionController.text = address;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,29 +163,44 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
       ),
       body: BlocConsumer<ColaboradorBloc, ColaboradorState>(
         listener: (context, state) {
-          if (state is ColaboradorError) {
-            AlertHelper.showAlert(
-              context: context,
-              title: 'Error',
-              message: state.message,
-              isSuccess: false,
-            );
-          } else if (state is DropdownDataLoaded) {
-            setState(() {
-              _ciudades = state.ciudades;
-              _roles = state.roles;
-              _cargos = state.cargos;
-              _estadosCiviles = state.estadosCiviles;
-              
-              if (_ciudades.isNotEmpty) _selectedCiudad = _ciudades.first;
-              if (_roles.isNotEmpty) _selectedRol = _roles.first;
-              if (_cargos.isNotEmpty) _selectedCargo = _cargos.first;
-              if (_estadosCiviles.isNotEmpty) _selectedEstadoCivil = _estadosCiviles.first;
-            });
+          if (state is ColaboradorDataState) {
+            // Inicializar valores de dropdown cuando estén disponibles
+            _initializeDropdownValues(state);
+            
+            // Mostrar error si existe
+            if (state.errorMessage != null) {
+              AlertHelper.showAlert(
+                context: context,
+                title: 'Error',
+                message: state.errorMessage!,
+                isSuccess: false,
+              );
+            }
           }
         },
         builder: (context, state) {
+          // Determinar si estamos cargando
+          bool isLoading = false;
+          
+          // Obtener listas de dropdown del estado
+          List<Ciudad> ciudades = [];
+          List<Rol> roles = [];
+          List<Cargo> cargos = [];
+          List<EstadoCivil> estadosCiviles = [];
+          
           if (state is ColaboradorLoading) {
+            isLoading = true;
+          } else if (state is ColaboradorDataState) {
+            isLoading = state.isLoading;
+            
+            // Asignar listas si están disponibles
+            if (state.ciudades != null) ciudades = state.ciudades!;
+            if (state.roles != null) roles = state.roles!;
+            if (state.cargos != null) cargos = state.cargos!;
+            if (state.estadosCiviles != null) estadosCiviles = state.estadosCiviles!;
+          }
+          
+          if (isLoading && ciudades.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
           
@@ -219,7 +292,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                                   label: 'Estado Civil',
                                   hint: 'Seleccione su estado civil',
                                   value: _selectedEstadoCivil,
-                                  items: _estadosCiviles,
+                                  items: estadosCiviles,
                                   getLabel: (item) => item.nombre,
                                   onChanged: (value) {
                                     setState(() {
@@ -304,7 +377,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                                   label: 'Rol',
                                   hint: 'Seleccione rol',
                                   value: _selectedRol,
-                                  items: _roles,
+                                  items: roles,
                                   getLabel: (item) => item.nombre,
                                   onChanged: (value) {
                                     setState(() {
@@ -326,7 +399,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                                   label: 'Cargo',
                                   hint: 'Seleccione cargo',
                                   value: _selectedCargo,
-                                  items: _cargos,
+                                  items: cargos,
                                   getLabel: (item) => item.nombre,
                                   onChanged: (value) {
                                     setState(() {
@@ -381,7 +454,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                             label: 'Ciudad',
                             hint: 'Seleccione ciudad',
                             value: _selectedCiudad,
-                            items: _ciudades,
+                            items: ciudades,
                             getLabel: (item) => item.nombre,
                             onChanged: (value) {
                               setState(() {
@@ -447,35 +520,74 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          Container(
-                            width: double.infinity,
-                            height: 200,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade800,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                          GestureDetector(
+                            onTap: _openMapScreen,
+                            child: Container(
+                              width: double.infinity,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade800,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Stack(
                                 children: [
-                                  Icon(
-                                    Icons.map,
-                                    size: 48,
-                                    color: Colors.white54,
-                                  ),
-                                  SizedBox(height: 16),
-                                  Text(
-                                    'Mapa no disponible',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
+                                  Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(
+                                          Icons.map,
+                                          size: 48,
+                                          color: Colors.white54,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        const Text(
+                                          'Seleccionar ubicación en el mapa',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Lat: ${_latitudController.text}, Lng: ${_longitudController.text}',
+                                          style: const TextStyle(
+                                            color: Colors.white70,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    'Ingrese las coordenadas manualmente',
-                                    style: TextStyle(
-                                      color: Colors.white70,
+                                  Positioned(
+                                    bottom: 8,
+                                    right: 8,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.primary,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.touch_app,
+                                            color: Colors.white,
+                                            size: 16,
+                                          ),
+                                          SizedBox(width: 4),
+                                          Text(
+                                            'Tocar para abrir',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -506,7 +618,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                       ),
                       const SizedBox(width: 16),
                       ElevatedButton(
-                        onPressed: _submitForm,
+                        onPressed: isLoading ? null : _submitForm,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
@@ -514,8 +626,18 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                             horizontal: 24,
                             vertical: 12,
                           ),
+                          disabledBackgroundColor: Colors.grey,
                         ),
-                        child: const Text('Guardar'),
+                        child: isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text('Guardar'),
                       ),
                     ],
                   ),

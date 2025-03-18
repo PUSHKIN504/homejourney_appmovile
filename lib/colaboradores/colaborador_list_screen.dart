@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:homejourney_appmovile/models/dropdown_models.dart';
 import '../utils/alert_helper.dart';
 import 'bloc/colaborador_bloc.dart';
 import 'bloc/colaborador_event.dart';
 import 'bloc/colaborador_state.dart';
 import 'colaborador_form_screen.dart';
-import '../models/dropdown_models.dart';
 
 class ColaboradorListScreen extends StatefulWidget {
   const ColaboradorListScreen({super.key});
@@ -15,26 +15,21 @@ class ColaboradorListScreen extends StatefulWidget {
 }
 
 class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
-  // Mapas para mostrar nombres en lugar de IDs
-  Map<int, String> rolesMap = {};
-  Map<int, String> cargosMap = {};
-  bool _isLoading = false;
+  bool _isFirstLoad = true;
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    // Solo cargamos datos si es la primera vez
+    if (_isFirstLoad) {
+      _loadData();
+      _isFirstLoad = false;
+    }
   }
   
   void _loadData() {
-    setState(() {
-      _isLoading = true;
-    });
-    
-    // Primero cargamos los datos de los dropdowns
+    // Cargamos ambos datos
     context.read<ColaboradorBloc>().add(LoadDropdownData());
-    
-    // Luego cargamos los colaboradores
     context.read<ColaboradorBloc>().add(LoadColaboradores());
   }
 
@@ -82,65 +77,38 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            MultiBlocListener(
-              listeners: [
-                BlocListener<ColaboradorBloc, ColaboradorState>(
-                  listener: (context, state) {
-                    if (state is DropdownDataLoaded) {
-                      // Crear mapas para mostrar nombres en lugar de IDs
-                      for (var rol in state.roles) {
-                        rolesMap[rol.rolId] = rol.nombre;
-                      }
-                      for (var cargo in state.cargos) {
-                        cargosMap[cargo.cargoId] = cargo.nombre;
-                      }
-                    }
-                  },
-                ),
-                BlocListener<ColaboradorBloc, ColaboradorState>(
-                  listener: (context, state) {
-                    if (state is ColaboradorLoading) {
-                      setState(() {
-                        _isLoading = true;
-                      });
-                    } else {
-                      setState(() {
-                        _isLoading = false;
-                      });
-                      
-                      if (state is ColaboradorError) {
-                        AlertHelper.showAlert(
-                          context: context,
-                          title: 'Error',
-                          message: state.message,
-                          isSuccess: false,
-                        );
-                      } else if (state is ColaboradorAdded) {
-                        AlertHelper.showAlert(
-                          context: context,
-                          title: 'Éxito',
-                          message: 'Colaborador agregado correctamente',
-                          isSuccess: true,
-                        );
-                      } else if (state is ColaboradorUpdated) {
-                        AlertHelper.showAlert(
-                          context: context,
-                          title: 'Éxito',
-                          message: 'Colaborador actualizado correctamente',
-                          isSuccess: true,
-                        );
-                      } else if (state is ColaboradorDeleted) {
-                        AlertHelper.showAlert(
-                          context: context,
-                          title: 'Éxito',
-                          message: 'Colaborador eliminado correctamente',
-                          isSuccess: true,
-                        );
-                      }
-                    }
-                  },
-                ),
-              ],
+            BlocListener<ColaboradorBloc, ColaboradorState>(
+              listener: (context, state) {
+                if (state is ColaboradorAdded) {
+                  AlertHelper.showAlert(
+                    context: context,
+                    title: state.success ? 'Éxito' : 'Error',
+                    message: state.message,
+                    isSuccess: state.success,
+                  );
+                } else if (state is ColaboradorUpdated) {
+                  AlertHelper.showAlert(
+                    context: context,
+                    title: state.success ? 'Éxito' : 'Error',
+                    message: state.message,
+                    isSuccess: state.success,
+                  );
+                } else if (state is ColaboradorDeleted) {
+                  AlertHelper.showAlert(
+                    context: context,
+                    title: state.success ? 'Éxito' : 'Error',
+                    message: state.message,
+                    isSuccess: state.success,
+                  );
+                } else if (state is ColaboradorDataState && state.errorMessage != null) {
+                  AlertHelper.showAlert(
+                    context: context,
+                    title: 'Error',
+                    message: state.errorMessage!,
+                    isSuccess: false,
+                  );
+                }
+              },
               child: const SizedBox.shrink(),
             ),
             Expanded(
@@ -154,25 +122,36 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Listado de Colaboradores',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          if (_isLoading)
-                            const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
+                      BlocBuilder<ColaboradorBloc, ColaboradorState>(
+                        builder: (context, state) {
+                          bool isLoading = false;
+                          if (state is ColaboradorLoading) {
+                            isLoading = true;
+                          } else if (state is ColaboradorDataState) {
+                            isLoading = state.isLoading;
+                          }
+                          
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Listado de Colaboradores',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                        ],
+                              if (isLoading)
+                                const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
                       ),
                       const SizedBox(height: 16),
                       Expanded(
@@ -182,100 +161,122 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
                               return const Center(
                                 child: CircularProgressIndicator(),
                               );
-                            } else if (state is ColaboradoresLoaded) {
-                              return state.colaboradores.isEmpty
-                                  ? const Center(
-                                      child: Text('No hay colaboradores registrados'),
-                                    )
-                                  : ListView.builder(
-                                      itemCount: state.colaboradores.length,
-                                      itemBuilder: (context, index) {
-                                        final colaborador = state.colaboradores[index];
-                                        return Card(
-                                          margin: const EdgeInsets.only(bottom: 8),
-                                          child: ListTile(
-                                            leading: CircleAvatar(
-                                              backgroundColor: Theme.of(context).colorScheme.primary,
-                                              child: Text('${index + 1}'),
-                                            ),
-                                            title: Text(
-                                              '${colaborador.nombre ?? ''} ${colaborador.apellido ?? ''}',
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            subtitle: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text('Rol: ${rolesMap[colaborador.rolId] ?? colaborador.rolId}'),
-                                                Text('Cargo: ${cargosMap[colaborador.cargoId] ?? colaborador.cargoId}'),
-                                                Text('Dirección: ${colaborador.direccion ?? ''}'),
-                                              ],
-                                            ),
-                                            trailing: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                IconButton(
-                                                  icon: const Icon(Icons.edit),
-                                                  onPressed: () {
-                                                    // Navigate to edit screen
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) => ColaboradorFormScreen(
-                                                          colaboradorId: colaborador.colaboradorId,
-                                                        ),
-                                                      ),
-                                                    ).then((_) {
-                                                      // Recargar datos cuando regrese
-                                                      _loadData();
-                                                    });
-                                                  },
-                                                ),
-                                                IconButton(
-                                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                                  onPressed: () {
-                                                    // Show confirmation dialog
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (context) => AlertDialog(
-                                                        title: const Text('Confirmar eliminación'),
-                                                        content: const Text('¿Está seguro que desea eliminar este colaborador?'),
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(context);
-                                                            },
-                                                            child: const Text('Cancelar'),
-                                                          ),
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(context);
-                                                              if (colaborador.colaboradorId != null) {
-                                                                context.read<ColaboradorBloc>().add(
-                                                                  DeleteColaborador(colaborador.colaboradorId!),
-                                                                );
-                                                              }
-                                                            },
-                                                            style: TextButton.styleFrom(
-                                                              foregroundColor: Colors.red,
-                                                            ),
-                                                            child: const Text('Eliminar'),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
+                            } else if (state is ColaboradorDataState) {
+                              // Si está cargando y no tenemos datos, mostramos el indicador
+                              if (state.isLoading && state.colaboradores == null) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                              
+                              // Si tenemos un error y no hay datos, mostramos el error
+                              if (state.errorMessage != null && state.colaboradores == null) {
+                                return Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.error_outline,
+                                        color: Colors.red,
+                                        size: 48,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        state.errorMessage!,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(color: Colors.red),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      ElevatedButton(
+                                        onPressed: _loadData,
+                                        child: const Text('Intentar nuevamente'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                              
+                              // Si no tenemos datos (pero no hay error ni está cargando), mostramos mensaje vacío
+                              if (state.colaboradores == null || state.colaboradores!.isEmpty) {
+                                return Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.info_outline,
+                                        color: Colors.amber,
+                                        size: 48,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Text(
+                                        'No hay colaboradores registrados',
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      ElevatedButton.icon(
+                                        onPressed: _loadData,
+                                        icon: const Icon(Icons.refresh),
+                                        label: const Text('Recargar datos'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                              
+                              // Si tenemos datos, los mostramos
+                              return ListView.builder(
+                                itemCount: state.colaboradores!.length,
+                                itemBuilder: (context, index) {
+                                  final colaborador = state.colaboradores![index];
+                                  
+                                  // Obtener nombres de rol y cargo si están disponibles
+                                  String rolNombre = '${colaborador.rolId}';
+                                  String cargoNombre = '${colaborador.cargoId}';
+                                  
+                                  if (state.roles != null) {
+                                    final rol = state.roles!.firstWhere(
+                                      (r) => r.rolId == colaborador.rolId,
+                                      orElse: () => Rol(rolId: colaborador.rolId!, nombre: 'Desconocido'),
                                     );
+                                    rolNombre = rol.nombre;
+                                  }
+                                  
+                                  if (state.cargos != null) {
+                                    final cargo = state.cargos!.firstWhere(
+                                      (c) => c.cargoId == colaborador.cargoId,
+                                      orElse: () => Cargo(cargoId: colaborador.cargoId!, nombre: 'Desconocido'),
+                                    );
+                                    cargoNombre = cargo.nombre;
+                                  }
+                                  
+                                  return Card(
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    child: ListTile(
+                                      leading: CircleAvatar(
+                                        backgroundColor: Theme.of(context).colorScheme.primary,
+                                        child: Text('${index + 1}'),
+                                      ),
+                                      title: Text(
+                                        '${colaborador.nombre ?? ''} ${colaborador.apellido ?? ''}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Rol: $rolNombre'),
+                                          Text('Cargo: $cargoNombre'),
+                                          Text('Dirección: ${colaborador.direccion ?? ''}'),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
                             } else {
                               return const Center(
-                                child: Text('Error al cargar colaboradores. Intente nuevamente.'),
+                                child: Text('Estado no reconocido. Intente nuevamente.'),
                               );
                             }
                           },

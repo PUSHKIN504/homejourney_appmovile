@@ -1,18 +1,16 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:homejourney_appmovile/home/bloc/home_event.dart';
-import 'package:homejourney_appmovile/utils/httpoverrides';
 import 'home/home_page.dart';
 import 'home/bloc/home_bloc.dart';
 import 'repository/data_repository.dart';
 import 'login/login_page.dart';
 import 'colaboradores/bloc/colaborador_bloc.dart';
 import 'services/colaborador_service.dart';
+import 'services/auth_service.dart';
+import 'login/bloc/login_bloc.dart';
 
 void main() {
-  HttpOverrides.global = MyHttpOverrides();
   runApp(const MyApp());
 }
 
@@ -21,17 +19,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const String baseApiUrl = 'https://172.29.6.105:45456'; // Reemplaza con tu URL real
     final dataRepository = DataRepository();
     
+    final authService = AuthService(
+      baseUrl: baseApiUrl,
+    );
+    
     final colaboradorService = ColaboradorService(
-      baseUrl: 'https://172.29.6.105:45456', 
+      baseUrl: baseApiUrl,
+      authService: authService,
     );
     
     return MultiBlocProvider(
       providers: [
         BlocProvider<HomeBloc>(
-          create: (context) =>
-              HomeBloc(dataRepository: dataRepository)..add(LoadHomeData()),
+          create: (context) => HomeBloc(dataRepository: dataRepository)..add(LoadHomeData()),
+        ),
+        BlocProvider<LoginBloc>(
+          create: (context) => LoginBloc(
+            authService: authService,
+          ),
         ),
         BlocProvider<ColaboradorBloc>(
           create: (context) => ColaboradorBloc(
@@ -71,9 +79,10 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        themeMode: ThemeMode.dark, // Force dark theme
-        home: const LoginPage(), // Start with login page
+        themeMode: ThemeMode.dark,
+        home: const LoginPage(),
       ),
     );
   }
 }
+

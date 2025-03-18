@@ -1,4 +1,3 @@
-// Models for Colaborador
 class Colaborador {
   final int colaboradorId;
   final int personaId;
@@ -10,8 +9,8 @@ class Colaborador {
   final DateTime fechaCrea;
   final int? usuarioModifica;
   final DateTime? fechaModifica;
-  final double latitud;
-  final double longitud;
+  final double? latitud;
+  final double? longitud;
 
   Colaborador({
     required this.colaboradorId,
@@ -24,26 +23,28 @@ class Colaborador {
     required this.fechaCrea,
     this.usuarioModifica,
     this.fechaModifica,
-    required this.latitud,
-    required this.longitud,
+    this.latitud,
+    this.longitud,
   });
 
   factory Colaborador.fromJson(Map<String, dynamic> json) {
     return Colaborador(
-      colaboradorId: json['colaboradorId'],
-      personaId: json['personaId'],
-      rolId: json['rolId'],
-      cargoId: json['cargoId'],
-      activo: json['activo'],
-      direccion: json['direccion'],
-      usuarioCrea: json['usuarioCrea'],
-      fechaCrea: DateTime.parse(json['fechaCrea']),
+      colaboradorId: json['colaboradorId'] ?? 0,
+      personaId: json['personaId'] ?? 0,
+      rolId: json['rolId'] ?? 0,
+      cargoId: json['cargoId'] ?? 0,
+      activo: json['activo'] ?? false,
+      direccion: json['direccion'] ?? '',
+      usuarioCrea: json['usuarioCrea'] ?? 0,
+      fechaCrea: json['fechaCrea'] != null
+          ? DateTime.parse(json['fechaCrea'])
+          : DateTime.now(),
       usuarioModifica: json['usuarioModifica'],
       fechaModifica: json['fechaModifica'] != null
           ? DateTime.parse(json['fechaModifica'])
           : null,
-      latitud: json['latitud'],
-      longitud: json['longitud'],
+      latitud: json['latitud']?.toDouble(),
+      longitud: json['longitud']?.toDouble(),
     );
   }
 
@@ -161,7 +162,7 @@ class CreatePersonaColaboradorDto {
   Map<String, dynamic> toJson() {
     return {
       'nombre': nombre,
-      'apelllido': apellido, // Note: keeping the typo as in the original model
+      'apelllido': apellido, 
       'sexo': sexo,
       'email': email,
       'documentonacionalidentificacion': documentoNacionalIdentificacion,
