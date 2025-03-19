@@ -134,14 +134,6 @@ class _LoginPageState extends State<LoginPage> {
                           return null;
                         },
                       ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () {
-                          },
-                          child: const Text('¿Olvidaste tu contraseña?'),
-                        ),
-                      ),
                       const SizedBox(height: 24),
                       SizedBox(
                         height: 50,
@@ -181,62 +173,6 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      Row(
-                        children: [
-                          const Expanded(child: Divider()),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(
-                              'O continúa con',
-                              style: TextStyle(
-                                color: Colors.grey.shade400,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                          const Expanded(child: Divider()),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _socialLoginButton(
-                            icon: Icons.g_mobiledata,
-                            color: Colors.red,
-                            onPressed: () {
-                            },
-                          ),
-                          const SizedBox(width: 16),
-                          _socialLoginButton(
-                            icon: Icons.facebook,
-                            color: Colors.blue,
-                            onPressed: () {
-                            },
-                          ),
-                          const SizedBox(width: 16),
-                          _socialLoginButton(
-                            icon: Icons.apple,
-                            color: Colors.white,
-                            onPressed: () {
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 32),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text('¿No tienes una cuenta?'),
-                          TextButton(
-                            onPressed: () {
-                              // Navigate to register page
-                            },
-                            child: const Text('Regístrate'),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
@@ -248,32 +184,5 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _socialLoginButton({
-    required IconData icon,
-    required Color color,
-    required VoidCallback onPressed,
-  }) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.grey.shade800,
-            width: 1,
-          ),
-        ),
-        child: Icon(
-          icon,
-          color: color,
-          size: 30,
-        ),
-      ),
-    );
-  }
 }
 

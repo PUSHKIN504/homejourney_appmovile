@@ -1,17 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart' as http show IOClient;
-import '../models/colaborador_model.dart';
-import '../models/dropdown_models.dart';
+import 'package:http/io_client.dart' as http;
+import '../models/colaborador_sucursal_model.dart';
+import '../models/sucursal_model.dart';
 import '../services/auth_service.dart';
 
-class ColaboradorService {
+class ColaboradorSucursalService {
   final String baseUrl;
-  final String endpoint = 'academiafarsiman/personascolaboradores';
+  final String endpoint = 'academiafarsiman/colaboradoressucursales';
   final AuthService? authService;
 
-  ColaboradorService({
+  ColaboradorSucursalService({
     required this.baseUrl,
     this.authService,
   });
@@ -25,7 +25,7 @@ class ColaboradorService {
     return http.IOClient(httpClient);
   }
 
-  Future<List<ColaboradorGetAllDto>> getAll() async {
+  Future<List<ColaboradorSucursal>> getAll() async {
     try {
       // Usar cliente inseguro para desarrollo
       final client = _createUnsafeClient();
@@ -44,31 +44,76 @@ class ColaboradorService {
         
         final response = await client.get(url, headers: headers);
         
+        print('GetAll response status: ${response.statusCode}');
+        print('GetAll response body: ${response.body}');
         
         if (response.statusCode == 200) {
           final Map<String, dynamic> responseData = json.decode(response.body);
           
           if (responseData['success'] == true) {
-            final List<dynamic> colaboradoresData = responseData['data'];
+            final List<dynamic> colaboradoresSucursalesData = responseData['data'];
             
-            return colaboradoresData
-                .map((item) => ColaboradorGetAllDto.fromJson(item))
+            return colaboradoresSucursalesData
+                .map((item) => ColaboradorSucursal.fromJson(item))
                 .toList();
           } else {
             throw Exception('Error en la respuesta: ${responseData['message']}');
           }
         } else {
-          throw Exception('Failed to load colaboradores: ${response.statusCode}');
+          throw Exception('Failed to load colaboradores sucursales: ${response.statusCode}');
         }
       } finally {
         client.close();
       }
     } catch (e) {
-      throw Exception('Error fetching colaboradores: $e');
+      print('Error detallado en getAll: $e');
+      throw Exception('Error fetching colaboradores sucursales: $e');
     }
   }
 
-  Future<Map<String, dynamic>> create(CreatePersonaColaboradorDto dto) async {
+  Future<ColaboradorSucursal> getById(int id) async {
+    try {
+      // Usar cliente inseguro para desarrollo
+      final client = _createUnsafeClient();
+      
+      try {
+        final url = Uri.parse('$baseUrl/$endpoint/$id');
+        
+        // Crear los headers
+        final headers = {
+          'Content-Type': 'application/json',
+        };
+        
+        if (authService != null && authService!.authToken != null) {
+          headers['Authorization'] = 'Bearer ${authService!.authToken}';
+        }
+        
+        final response = await client.get(url, headers: headers);
+        
+        print('GetById response status: ${response.statusCode}');
+        print('GetById response body: ${response.body}');
+        
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> responseData = json.decode(response.body);
+          
+          if (responseData['success'] == true) {
+            return ColaboradorSucursal.fromJson(responseData['data']);
+          } else {
+            throw Exception('Error en la respuesta: ${responseData['message']}');
+          }
+        } else {
+          throw Exception('Failed to load colaborador sucursal: ${response.statusCode}');
+        }
+      } finally {
+        client.close();
+      }
+    } catch (e) {
+      print('Error detallado en getById: $e');
+      throw Exception('Error fetching colaborador sucursal: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> create(ColaboradorSucursalRequest dto) async {
     try {
       // Usar cliente inseguro para desarrollo
       final client = _createUnsafeClient();
@@ -78,9 +123,11 @@ class ColaboradorService {
         
         // Convertir el DTO a un mapa
         final dtoMap = dto.toJson();
+        print('DTO Map: $dtoMap');
         
         // Crear el cuerpo de la solicitud
         final requestBody = json.encode(dtoMap);
+        print('Request body: $requestBody');
         
         // Crear los headers
         final headers = {
@@ -116,22 +163,22 @@ class ColaboradorService {
         if (response.statusCode == 201 || response.statusCode == 200) {
           if (responseData['success'] == true) {
             return {
-              'colaborador': responseData['data'] != null 
-                  ? Colaborador.fromJson(responseData['data']) 
+              'colaboradorSucursal': responseData['data'] != null 
+                  ? ColaboradorSucursal.fromJson(responseData['data']) 
                   : null,
-              'message': responseData['message'] ?? 'Colaborador creado exitosamente',
+              'message': responseData['message'] ?? 'Asignación creada exitosamente',
               'success': true
             };
           } else {
             return {
-              'colaborador': null,
-              'message': responseData['message'] ?? 'Error al crear colaborador',
+              'colaboradorSucursal': null,
+              'message': responseData['message'] ?? 'Error al crear asignación',
               'success': false
             };
           }
         } else {
           return {
-            'colaborador': null,
+            'colaboradorSucursal': null,
             'message': 'Error: ${response.statusCode} - ${response.body}',
             'success': false
           };
@@ -142,14 +189,14 @@ class ColaboradorService {
     } catch (e) {
       print('Error detallado en create: $e');
       return {
-        'colaborador': null,
-        'message': 'Error al crear colaborador: $e',
+        'colaboradorSucursal': null,
+        'message': 'Error al crear asignación: $e',
         'success': false
       };
     }
   }
 
-  Future<Map<String, dynamic>> update(int id, CreatePersonaColaboradorDto dto) async {
+  Future<Map<String, dynamic>> update(int id, ColaboradorSucursalRequest dto) async {
     try {
       // Usar cliente inseguro para desarrollo
       final client = _createUnsafeClient();
@@ -197,22 +244,22 @@ class ColaboradorService {
         if (response.statusCode == 200) {
           if (responseData['success'] == true) {
             return {
-              'colaborador': responseData['data'] != null 
-                  ? Colaborador.fromJson(responseData['data']) 
+              'colaboradorSucursal': responseData['data'] != null 
+                  ? ColaboradorSucursal.fromJson(responseData['data']) 
                   : null,
-              'message': responseData['message'] ?? 'Colaborador actualizado exitosamente',
+              'message': responseData['message'] ?? 'Asignación actualizada exitosamente',
               'success': true
             };
           } else {
             return {
-              'colaborador': null,
-              'message': responseData['message'] ?? 'Error al actualizar colaborador',
+              'colaboradorSucursal': null,
+              'message': responseData['message'] ?? 'Error al actualizar asignación',
               'success': false
             };
           }
         } else {
           return {
-            'colaborador': null,
+            'colaboradorSucursal': null,
             'message': 'Error: ${response.statusCode} - ${response.body}',
             'success': false
           };
@@ -223,20 +270,20 @@ class ColaboradorService {
     } catch (e) {
       print('Error detallado en update: $e');
       return {
-        'colaborador': null,
-        'message': 'Error al actualizar colaborador: $e',
+        'colaboradorSucursal': null,
+        'message': 'Error al actualizar asignación: $e',
         'success': false
       };
     }
   }
 
-  Future<Map<String, dynamic>> delete(int id) async {
+  Future<Map<String, dynamic>> setActive(int id, bool active) async {
     try {
       // Usar cliente inseguro para desarrollo
       final client = _createUnsafeClient();
       
       try {
-        final url = Uri.parse('$baseUrl/$endpoint/$id');
+        final url = Uri.parse('$baseUrl/$endpoint/$id?active=$active');
         
         // Crear los headers
         final headers = {
@@ -248,13 +295,13 @@ class ColaboradorService {
         }
         
         // Realizar la solicitud
-        final response = await client.delete(
+        final response = await client.patch(
           url,
           headers: headers,
         );
         
-        print('Delete response status: ${response.statusCode}');
-        print('Delete response body: ${response.body}');
+        print('SetActive response status: ${response.statusCode}');
+        print('SetActive response body: ${response.body}');
         
         Map<String, dynamic> responseData;
         try {
@@ -271,65 +318,37 @@ class ColaboradorService {
         if (response.statusCode == 200) {
           if (responseData['success'] == true) {
             return {
-              'success': true,
-              'message': responseData['message'] ?? 'Colaborador eliminado exitosamente'
+              'colaboradorSucursal': responseData['data'] != null 
+                  ? ColaboradorSucursal.fromJson(responseData['data']) 
+                  : null,
+              'message': responseData['message'] ?? 'Estado actualizado exitosamente',
+              'success': true
             };
           } else {
             return {
-              'success': false,
-              'message': responseData['message'] ?? 'Error al eliminar colaborador'
+              'colaboradorSucursal': null,
+              'message': responseData['message'] ?? 'Error al actualizar estado',
+              'success': false
             };
           }
         } else {
           return {
-            'success': false,
-            'message': 'Error: ${response.statusCode} - ${response.body}'
+            'colaboradorSucursal': null,
+            'message': 'Error: ${response.statusCode} - ${response.body}',
+            'success': false
           };
         }
       } finally {
         client.close();
       }
     } catch (e) {
-      print('Error detallado en delete: $e');
+      print('Error detallado en setActive: $e');
       return {
-        'success': false,
-        'message': 'Error al eliminar colaborador: $e'
+        'colaboradorSucursal': null,
+        'message': 'Error al actualizar estado: $e',
+        'success': false
       };
     }
-  }
-
-  Future<List<Ciudad>> getCiudades() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return [
-      Ciudad(ciudadId: 1, nombre: 'San Pedro Sula'),
-      Ciudad(ciudadId: 2, nombre: 'La Lima'),
-    ];
-  }
-
-  Future<List<Rol>> getRoles() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return [
-      Rol(rolId: 1, nombre: 'Administrador'),
-      Rol(rolId: 2, nombre: 'Colaborador'),
-      Rol(rolId: 3, nombre: 'Supervisor'),
-    ];
-  }
-
-  Future<List<Cargo>> getCargos() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return [
-      Cargo(cargoId: 1, nombre: 'Gerente'),
-      Cargo(cargoId: 2, nombre: 'Asistente'),
-      Cargo(cargoId: 3, nombre: 'Analista'),
-    ];
-  }
-
-  Future<List<EstadoCivil>> getEstadosCiviles() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return [
-      EstadoCivil(estadoCivilId: 1, nombre: 'Soltero'),
-      EstadoCivil(estadoCivilId: 2, nombre: 'Casado'),
-    ];
   }
 }
 

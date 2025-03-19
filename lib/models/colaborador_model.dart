@@ -1,3 +1,4 @@
+// Models for Colaborador
 class Colaborador {
   final int colaboradorId;
   final int personaId;
@@ -160,21 +161,22 @@ class CreatePersonaColaboradorDto {
   });
 
   Map<String, dynamic> toJson() {
+    // Convertir a formato PascalCase para coincidir con el backend en C#
     return {
-      'nombre': nombre,
-      'apelllido': apellido, 
-      'sexo': sexo,
-      'email': email,
-      'documentonacionalidentificacion': documentoNacionalIdentificacion,
-      'activo': activo,
-      'estadocivilId': estadoCivilId,
-      'ciudadId': ciudadId,
-      'usuariocrea': usuarioCrea,
-      'rolId': rolId,
-      'cargoId': cargoId,
-      'direccion': direccion,
-      'latitud': latitud,
-      'longitud': longitud,
+      'Nombre': nombre,
+      'Apelllido': apellido, // Nota: mantiene las tres 'l' como en el backend
+      'Sexo': sexo,
+      'Email': email,
+      'Documentonacionalidentificacion': documentoNacionalIdentificacion,
+      'Activo': activo,
+      'EstadocivilId': estadoCivilId,
+      'CiudadId': ciudadId,
+      'Usuariocrea': usuarioCrea,
+      'RolId': rolId,
+      'CargoId': cargoId,
+      'Direccion': direccion,
+      'Latitud': latitud,
+      'Longitud': longitud,
     };
   }
 }

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:homejourney_appmovile/colaboradores_sucursales/bloc/colaborador_sucursal_bloc.dart';
 import 'package:homejourney_appmovile/home/bloc/home_event.dart';
-import 'home/home_page.dart';
 import 'home/bloc/home_bloc.dart';
 import 'repository/data_repository.dart';
-import 'login/login_page.dart';
 import 'colaboradores/bloc/colaborador_bloc.dart';
 import 'services/colaborador_service.dart';
 import 'services/auth_service.dart';
 import 'login/bloc/login_bloc.dart';
+import 'services/colaborador_sucursal_service.dart';
+import 'app_navigator.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,16 +20,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const String baseApiUrl = 'https://172.29.6.105:45456'; // Reemplaza con tu URL real
+    // Definir la URL base para todos los servicios
+    const String baseApiUrl = 'https://192.168.2.93:45456'; // Reemplaza con tu URL real
+    
+    // Crear repositorios
     final dataRepository = DataRepository();
     
+    // Crear servicios
     final authService = AuthService(
       baseUrl: baseApiUrl,
     );
     
     final colaboradorService = ColaboradorService(
       baseUrl: baseApiUrl,
-      authService: authService,
+      authService: authService, // Pasar el servicio de autenticación
+    );
+    
+    final colaboradorSucursalService = ColaboradorSucursalService(
+      baseUrl: baseApiUrl,
+      authService: authService, // Pasar el servicio de autenticación
     );
     
     return MultiBlocProvider(
@@ -44,6 +54,11 @@ class MyApp extends StatelessWidget {
         BlocProvider<ColaboradorBloc>(
           create: (context) => ColaboradorBloc(
             colaboradorService: colaboradorService,
+          ),
+        ),
+        BlocProvider<ColaboradorSucursalBloc>(
+          create: (context) => ColaboradorSucursalBloc(
+            colaboradorSucursalService: colaboradorSucursalService,
           ),
         ),
       ],
@@ -79,8 +94,8 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        themeMode: ThemeMode.dark,
-        home: const LoginPage(),
+        themeMode: ThemeMode.dark, // Force dark theme
+        home: const AppNavigator(),
       ),
     );
   }

@@ -290,6 +290,20 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ColaboradorFormScreen(),
+            ),
+          ).then((_) {
+            _loadData();
+          });
+        },
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

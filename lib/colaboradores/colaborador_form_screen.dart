@@ -99,6 +99,20 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
+      // Imprimir valores para depuración
+      print('Nombre: ${_nombreController.text}');
+      print('Apellido: ${_apellidoController.text}');
+      print('Sexo: $_sexo');
+      print('Email: ${_emailController.text}');
+      print('DNI: ${_dniController.text}');
+      print('Dirección: ${_direccionController.text}');
+      print('Ciudad ID: ${_selectedCiudad?.ciudadId}');
+      print('Rol ID: ${_selectedRol?.rolId}');
+      print('Cargo ID: ${_selectedCargo?.cargoId}');
+      print('Estado Civil ID: ${_selectedEstadoCivil?.estadoCivilId}');
+      print('Latitud: ${_latitudController.text}');
+      print('Longitud: ${_longitudController.text}');
+      
       final colaborador = CreatePersonaColaboradorDto(
         nombre: _nombreController.text,
         apellido: _apellidoController.text,

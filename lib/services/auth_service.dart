@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
 import '../models/auth_models.dart';
 
 class AuthService {
@@ -37,7 +36,6 @@ class AuthService {
       httpClient.close();
       
       final Map<String, dynamic> responseData = json.decode(responseBody);
-      print('Login response: $responseData');
 
       if (response.statusCode == 200) {
         if (responseData['token'] != null) {
@@ -59,7 +57,6 @@ class AuthService {
         );
       }
     } catch (e) {
-      print('Error detallado en login: $e');
       return AuthResponse(
         success: false,
         message: 'Error de conexión: $e',
