@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:homejourney_appmovile/colaboradores_sucursales/colaborador_sucursal_list_screen.dart';
+import 'package:homejourney_appmovile/viajes/viajes_screen.dart';
 import 'login/bloc/login_bloc.dart';
 import 'login/bloc/login_state.dart';
 import 'login/login_page.dart';
@@ -24,7 +25,8 @@ class _AppNavigatorState extends State<AppNavigator> {
     const DashboardScreen(),
     const ColaboradorListScreen(),
     const ColaboradorSucursalListScreen(),
-    const NotificationsScreen(),
+    const ViajesScreen(), // Nueva pantalla de viajes
+    // const NotificationsScreen(),
     const ProfileScreen(),
   ];
 

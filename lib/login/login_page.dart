@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:homejourney_appmovile/colaboradores_sucursales/bloc/colaborador_sucursal_bloc.dart';
+import 'package:homejourney_appmovile/colaboradores_sucursales/bloc/colaborador_sucursal_event.dart';
+import 'package:homejourney_appmovile/colaboradores_sucursales/bloc/sucursal_bloc.dart';
+import 'package:homejourney_appmovile/colaboradores_sucursales/bloc/sucursal_event.dart';
 import '../utils/alert_helper.dart';
 import 'bloc/login_bloc.dart';
 import 'bloc/login_event.dart';
@@ -43,7 +47,8 @@ class _LoginPageState extends State<LoginPage> {
             
             context.read<ColaboradorBloc>().add(LoadDropdownData());
             context.read<ColaboradorBloc>().add(LoadColaboradores());
-            
+            context.read<ColaboradorSucursalBloc>().add(LoadColaboradoresSucursales());
+            context.read<SucursalBloc>().add(LoadSucursales());
             Future.delayed(const Duration(seconds: 1), () {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (_) => const ColaboradorListScreen()),

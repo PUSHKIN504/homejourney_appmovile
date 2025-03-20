@@ -55,9 +55,13 @@ class BottomNavigationMenu extends StatelessWidget {
               label: 'Sucursales',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.notifications),
-              label: 'Alertas',
+              icon: Icon(Icons.directions_car),
+              label: 'Viajes',
             ),
+            // BottomNavigationBarItem(
+            //   icon: Icon(Icons.notifications),
+            //   label: 'Alertas',
+            // ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: 'Perfil',

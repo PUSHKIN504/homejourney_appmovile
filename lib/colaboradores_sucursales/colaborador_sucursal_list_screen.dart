@@ -178,7 +178,7 @@ class _ColaboradorSucursalListScreenState extends State<ColaboradorSucursalListS
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text('Sucursal: ${asignacion.nombreSucursal}'),
-                                          Text('Distancia: ${asignacion.distanciaKilometro.toStringAsFixed(2)} km'),
+                                          Text('Distancia: ${asignacion.distanciakilometro.toStringAsFixed(2)} km'),
                                           Row(
                                             children: [
                                               Icon(

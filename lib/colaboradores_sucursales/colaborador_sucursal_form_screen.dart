@@ -11,6 +11,9 @@ import 'bloc/colaborador_sucursal_state.dart';
 import '../colaboradores/bloc/colaborador_bloc.dart';
 import '../colaboradores/bloc/colaborador_event.dart';
 import '../colaboradores/bloc/colaborador_state.dart';
+import 'bloc/sucursal_bloc.dart';
+import 'bloc/sucursal_event.dart';
+import 'bloc/sucursal_state.dart';
 
 class ColaboradorSucursalFormScreen extends StatefulWidget {
   final int? asignacionId;
@@ -35,8 +38,8 @@ class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormS
     // Cargar colaboradores
     context.read<ColaboradorBloc>().add(LoadColaboradores());
     
-    // Aquí cargaríamos las sucursales si tuviéramos un BLoC para ello
-    // Por ahora, usaremos datos de ejemplo
+    // Cargar sucursales
+    context.read<SucursalBloc>().add(LoadSucursales());
     
     // Si es edición, cargar datos de la asignación
     if (widget.asignacionId != null) {
@@ -235,84 +238,114 @@ class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormS
                         
                         const SizedBox(height: 16),
                         
-                        // Selector de Sucursal (ejemplo con datos estáticos)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                        // Selector de Sucursal (ahora usando datos del API)
+                        BlocBuilder<SucursalBloc, SucursalState>(
+                          builder: (context, state) {
+                            List<Sucursal> sucursales = [];
+                            bool isLoading = false;
+                            
+                            if (state is SucursalLoading) {
+                              isLoading = true;
+                            } else if (state is SucursalLoaded) {
+                              sucursales = state.sucursales;
+                            } else if (state is SucursalError) {
+                              // Mostrar error
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Sucursal',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Error: ${state.message}',
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      context.read<SucursalBloc>().add(LoadSucursales());
+                                    },
+                                    child: const Text('Reintentar'),
+                                  ),
+                                ],
+                              );
+                            }
+                            
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Sucursal',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
+                                Row(
+                                  children: [
+                                    const Text(
+                                      'Sucursal',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const Text(
+                                      ' *',
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    if (isLoading)
+                                      const Padding(
+                                        padding: EdgeInsets.only(left: 8.0),
+                                        child: SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
-                                const Text(
-                                  ' *',
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.bold,
+                                const SizedBox(height: 8),
+                                DropdownButtonFormField<Sucursal>(
+                                  value: _selectedSucursal,
+                                  decoration: InputDecoration(
+                                    hintText: 'Seleccione una sucursal',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 16,
+                                    ),
+                                    filled: true,
+                                    fillColor: Theme.of(context).cardColor,
                                   ),
+                                  items: sucursales.map((sucursal) {
+                                    return DropdownMenuItem<Sucursal>(
+                                      value: sucursal,
+                                      child: Text(sucursal.nombre),
+                                    );
+                                  }).toList(),
+                                  onChanged: isLoading
+                                      ? null
+                                      : (value) {
+                                          setState(() {
+                                            _selectedSucursal = value;
+                                          });
+                                        },
+                                  validator: (value) {
+                                    if (value == null) {
+                                      return 'La sucursal es requerida';
+                                    }
+                                    return null;
+                                  },
                                 ),
                               ],
-                            ),
-                            const SizedBox(height: 8),
-                            DropdownButtonFormField<Sucursal>(
-                              value: _selectedSucursal,
-                              decoration: InputDecoration(
-                                hintText: 'Seleccione una sucursal',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
-                                ),
-                                filled: true,
-                                fillColor: Theme.of(context).cardColor,
-                              ),
-                              items: [
-                                Sucursal(
-                                  sucursalId: 1,
-                                  nombre: 'Sucursal Central',
-                                  direccion: 'Calle Principal #123',
-                                  latitud: 15.5046,
-                                  longitud: -88.0250,
-                                ),
-                                Sucursal(
-                                  sucursalId: 2,
-                                  nombre: 'Sucursal Norte',
-                                  direccion: 'Avenida Norte #456',
-                                  latitud: 15.5200,
-                                  longitud: -88.0300,
-                                ),
-                                Sucursal(
-                                  sucursalId: 3,
-                                  nombre: 'Sucursal Sur',
-                                  direccion: 'Boulevard Sur #789',
-                                  latitud: 15.4900,
-                                  longitud: -88.0200,
-                                ),
-                              ].map((sucursal) {
-                                return DropdownMenuItem<Sucursal>(
-                                  value: sucursal,
-                                  child: Text(sucursal.nombre),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedSucursal = value;
-                                });
-                              },
-                              validator: (value) {
-                                if (value == null) {
-                                  return 'La sucursal es requerida';
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
+                            );
+                          },
                         ),
                         
                         const SizedBox(height: 16),

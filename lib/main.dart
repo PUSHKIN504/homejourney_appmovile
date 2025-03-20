@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:homejourney_appmovile/colaboradores_sucursales/bloc/colaborador_sucursal_bloc.dart';
+import 'package:homejourney_appmovile/colaboradores_sucursales/bloc/sucursal_bloc.dart';
 import 'package:homejourney_appmovile/home/bloc/home_event.dart';
+import 'package:homejourney_appmovile/viajes/bloc/viaje_bloc.dart';
+import 'package:intl/intl.dart';
+import 'home/home_dashboard.dart';
 import 'home/bloc/home_bloc.dart';
 import 'repository/data_repository.dart';
+import 'login/login_page.dart';
 import 'colaboradores/bloc/colaborador_bloc.dart';
 import 'services/colaborador_service.dart';
 import 'services/auth_service.dart';
 import 'login/bloc/login_bloc.dart';
 import 'services/colaborador_sucursal_service.dart';
+import 'services/sucursal_service.dart';
+import 'services/transportista_service.dart';
+import 'services/viaje_service.dart';
 import 'app_navigator.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('es', null);
+  Intl.defaultLocale = 'es';
   runApp(const MyApp());
 }
 
@@ -21,7 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Definir la URL base para todos los servicios
-    const String baseApiUrl = 'https://192.168.2.93:45456'; // Reemplaza con tu URL real
+    const String baseApiUrl = 'https://172.28.208.1:45456'; // Reemplaza con tu URL real
     
     // Crear repositorios
     final dataRepository = DataRepository();
@@ -37,6 +49,21 @@ class MyApp extends StatelessWidget {
     );
     
     final colaboradorSucursalService = ColaboradorSucursalService(
+      baseUrl: baseApiUrl,
+      authService: authService, // Pasar el servicio de autenticación
+    );
+    
+    final sucursalService = SucursalService(
+      baseUrl: baseApiUrl,
+      authService: authService, // Pasar el servicio de autenticación
+    );
+    
+    final transportistaService = TransportistaService(
+      baseUrl: baseApiUrl,
+      authService: authService, // Pasar el servicio de autenticación
+    );
+    
+    final viajeService = ViajeService(
       baseUrl: baseApiUrl,
       authService: authService, // Pasar el servicio de autenticación
     );
@@ -59,6 +86,20 @@ class MyApp extends StatelessWidget {
         BlocProvider<ColaboradorSucursalBloc>(
           create: (context) => ColaboradorSucursalBloc(
             colaboradorSucursalService: colaboradorSucursalService,
+          ),
+        ),
+        BlocProvider<SucursalBloc>(
+          create: (context) => SucursalBloc(
+            sucursalService: sucursalService,
+          ),
+        ),
+        BlocProvider<ViajeBloc>(
+          create: (context) => ViajeBloc(
+            viajeService: viajeService,
+            colaboradorSucursalService: colaboradorSucursalService,
+            transportistaService: transportistaService,
+            sucursalService: sucursalService,
+            loginBloc: context.read<LoginBloc>(),
           ),
         ),
       ],
