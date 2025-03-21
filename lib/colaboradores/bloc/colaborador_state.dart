@@ -11,6 +11,7 @@ class ColaboradorInitial extends ColaboradorState {}
 
 class ColaboradorLoading extends ColaboradorState {}
 
+// Estado compuesto que contiene tanto la lista de colaboradores como los datos de dropdown
 class ColaboradorDataState extends ColaboradorState {
   final List<ColaboradorGetAllDto>? colaboradores;
   final List<Ciudad>? ciudades;
@@ -30,6 +31,7 @@ class ColaboradorDataState extends ColaboradorState {
     this.errorMessage,
   });
 
+  // Método para crear una copia del estado con algunos campos actualizados
   ColaboradorDataState copyWith({
     List<ColaboradorGetAllDto>? colaboradores,
     List<Ciudad>? ciudades,
@@ -62,6 +64,7 @@ class ColaboradorDataState extends ColaboradorState {
       ];
 }
 
+// Estados para operaciones específicas con mensajes
 class ColaboradorAdded extends ColaboradorState {
   final Colaborador? colaborador;
   final String message;

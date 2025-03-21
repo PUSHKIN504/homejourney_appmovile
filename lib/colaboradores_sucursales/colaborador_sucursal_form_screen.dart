@@ -26,7 +26,8 @@ class ColaboradorSucursalFormScreen extends StatefulWidget {
 
 class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _distanciaController = TextEditingController();
+  // Se elimina el controller de distancia, ya que se usará un valor hardcoded.
+  // final _distanciaController = TextEditingController();
 
   ColaboradorGetAllDto? _selectedColaborador;
   Sucursal? _selectedSucursal;
@@ -49,7 +50,8 @@ class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormS
 
   @override
   void dispose() {
-    _distanciaController.dispose();
+    // Se elimina el dispose del controller de distancia
+    // _distanciaController.dispose();
     super.dispose();
   }
 
@@ -75,7 +77,8 @@ class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormS
         return;
       }
       
-      final distancia = double.parse(_distanciaController.text);
+      // Usamos un valor hardcoded para distanciaKilometro, por ejemplo 2.0
+      const double distanciaHardcoded = 2.0;
       
       if (widget.asignacionId != null) {
         // Actualizar asignación existente
@@ -84,8 +87,8 @@ class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormS
             id: widget.asignacionId!,
             colaboradorId: _selectedColaborador!.colaboradorId!,
             sucursalId: _selectedSucursal!.sucursalId,
-            distanciaKilometro: distancia,
-            usuarioModifica: 1, // Hardcoded for now
+            distanciaKilometro: distanciaHardcoded,
+            usuarioModifica: 1, // Hardcoded
           ),
         );
       } else {
@@ -94,8 +97,8 @@ class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormS
           AddColaboradorSucursal(
             colaboradorId: _selectedColaborador!.colaboradorId!,
             sucursalId: _selectedSucursal!.sucursalId,
-            distanciaKilometro: distancia,
-            usuarioCrea: 1, // Hardcoded for now
+            distanciaKilometro: distanciaHardcoded,
+            usuarioCrea: 1, // Hardcoded
           ),
         );
       }
@@ -347,34 +350,6 @@ class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormS
                             );
                           },
                         ),
-                        
-                        const SizedBox(height: 16),
-                        
-                        // Campo de distancia
-                        CustomTextField(
-                          label: 'Distancia (km)',
-                          hint: 'Ingrese la distancia en kilómetros',
-                          controller: _distanciaController,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-                          ],
-                          isRequired: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'La distancia es requerida';
-                            }
-                            try {
-                              final distance = double.parse(value);
-                              if (distance <= 0) {
-                                return 'La distancia debe ser mayor a 0';
-                              }
-                            } catch (e) {
-                              return 'Ingrese un número válido';
-                            }
-                            return null;
-                          },
-                        ),
                       ],
                     ),
                   ),
@@ -420,4 +395,3 @@ class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormS
     );
   }
 }
-

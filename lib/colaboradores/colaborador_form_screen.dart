@@ -248,7 +248,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                               Expanded(
                                 child: CustomTextField(
                                   label: 'Nombre',
-                                  hint: 'Ingrese su nombre',
+                                  hint: 'Nombre',
                                   controller: _nombreController,
                                   isRequired: true,
                                   validator: (value) {
@@ -263,7 +263,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                               Expanded(
                                 child: CustomTextField(
                                   label: 'Apellido',
-                                  hint: 'Ingrese su apellido',
+                                  hint: 'Apellido',
                                   controller: _apellidoController,
                                   isRequired: true,
                                   validator: (value) {
@@ -282,7 +282,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                               Expanded(
                                 child: CustomDropdown<String>(
                                   label: 'Sexo',
-                                  hint: 'Seleccione su sexo',
+                                  hint: 'Seleccione',
                                   value: _sexo,
                                   items: const ['M', 'F'],
                                   getLabel: (item) => item == 'M' ? 'Masculino' : 'Femenino',
@@ -294,7 +294,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                                   isRequired: true,
                                   validator: (value) {
                                     if (value == null) {
-                                      return 'El sexo es requerido';
+                                      return 'Sexo es requerido';
                                     }
                                     return null;
                                   },
@@ -304,7 +304,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                               Expanded(
                                 child: CustomDropdown<EstadoCivil>(
                                   label: 'Estado Civil',
-                                  hint: 'Seleccione su estado civil',
+                                  hint: 'Seleccione',
                                   value: _selectedEstadoCivil,
                                   items: estadosCiviles,
                                   getLabel: (item) => item.nombre,
@@ -411,7 +411,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                               Expanded(
                                 child: CustomDropdown<Cargo>(
                                   label: 'Cargo',
-                                  hint: 'Seleccione cargo',
+                                  hint: 'Cargo',
                                   value: _selectedCargo,
                                   items: cargos,
                                   getLabel: (item) => item.nombre,
@@ -664,4 +664,3 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
     );
   }
 }
-

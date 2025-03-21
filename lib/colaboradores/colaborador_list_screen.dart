@@ -20,7 +20,6 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
   @override
   void initState() {
     super.initState();
-    // Solo cargamos datos si es la primera vez
     if (_isFirstLoad) {
       _loadData();
       _isFirstLoad = false;
@@ -28,7 +27,6 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
   }
   
   void _loadData() {
-    // Cargamos ambos datos
     context.read<ColaboradorBloc>().add(LoadDropdownData());
     context.read<ColaboradorBloc>().add(LoadColaboradores());
   }
@@ -61,7 +59,6 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
                     builder: (context) => const ColaboradorFormScreen(),
                   ),
                 ).then((_) {
-                  // Recargar datos cuando regrese de la pantalla de formulario
                   _loadData();
                 });
               },
@@ -162,14 +159,12 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
                                 child: CircularProgressIndicator(),
                               );
                             } else if (state is ColaboradorDataState) {
-                              // Si está cargando y no tenemos datos, mostramos el indicador
                               if (state.isLoading && state.colaboradores == null) {
                                 return const Center(
                                   child: CircularProgressIndicator(),
                                 );
                               }
                               
-                              // Si tenemos un error y no hay datos, mostramos el error
                               if (state.errorMessage != null && state.colaboradores == null) {
                                 return Center(
                                   child: Column(
@@ -196,7 +191,6 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
                                 );
                               }
                               
-                              // Si no tenemos datos (pero no hay error ni está cargando), mostramos mensaje vacío
                               if (state.colaboradores == null || state.colaboradores!.isEmpty) {
                                 return Center(
                                   child: Column(
@@ -229,7 +223,6 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
                                 itemBuilder: (context, index) {
                                   final colaborador = state.colaboradores![index];
                                   
-                                  // Obtener nombres de rol y cargo si están disponibles
                                   String rolNombre = '${colaborador.rolId}';
                                   String cargoNombre = '${colaborador.cargoId}';
                                   

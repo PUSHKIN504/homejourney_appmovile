@@ -49,6 +49,7 @@ class _SelectableDataTableState<T> extends State<SelectableDataTable<T>> {
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DataTable(
+            showCheckboxColumn: false, 
             columns: [
               const DataColumn(
                 label: Text(''),
