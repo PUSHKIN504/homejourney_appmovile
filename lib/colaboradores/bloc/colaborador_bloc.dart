@@ -18,7 +18,6 @@ class ColaboradorBloc extends Bloc<ColaboradorEvent, ColaboradorState> {
 
   Future<void> _onLoadColaboradores(
       LoadColaboradores event, Emitter<ColaboradorState> emit) async {
-    // Si ya tenemos un estado compuesto, lo actualizamos
     if (state is ColaboradorDataState) {
       final currentState = state as ColaboradorDataState;
       emit(currentState.copyWith(isLoading: true, errorMessage: null));
@@ -37,7 +36,6 @@ class ColaboradorBloc extends Bloc<ColaboradorEvent, ColaboradorState> {
         ));
       }
     } else {
-      // Si es la primera vez, creamos un nuevo estado
       emit(ColaboradorLoading());
       try {
         final colaboradores = await _colaboradorService.getAll();
@@ -55,62 +53,65 @@ class ColaboradorBloc extends Bloc<ColaboradorEvent, ColaboradorState> {
     }
   }
 
-  Future<void> _onLoadDropdownData(
-      LoadDropdownData event, Emitter<ColaboradorState> emit) async {
-    // Si ya tenemos un estado compuesto, lo actualizamos
-    if (state is ColaboradorDataState) {
-      final currentState = state as ColaboradorDataState;
-      emit(currentState.copyWith(isLoading: true, errorMessage: null));
-      
-      try {
-        final ciudades = await _colaboradorService.getCiudades();
-        final roles = await _colaboradorService.getRoles();
-        final cargos = await _colaboradorService.getCargos();
-        final estadosCiviles = await _colaboradorService.getEstadosCiviles();
+Future<void> _onLoadDropdownData(
+    LoadDropdownData event, Emitter<ColaboradorState> emit) async {
+  if (state is ColaboradorDataState) {
+    final currentState = state as ColaboradorDataState;
+    emit(currentState.copyWith(isLoading: true, errorMessage: null));
 
-        emit(currentState.copyWith(
-          ciudades: ciudades,
-          roles: roles,
-          cargos: cargos,
-          estadosCiviles: estadosCiviles,
-          isLoading: false,
-        ));
-      } catch (e) {
-        print('Error en _onLoadDropdownData: ${e.toString()}');
-        emit(currentState.copyWith(
-          isLoading: false,
-          errorMessage: 'Error al cargar datos de formulario: ${e.toString()}',
-        ));
-      }
-    } else {
-      // Si es la primera vez, creamos un nuevo estado
-      emit(ColaboradorLoading());
-      try {
-        final ciudades = await _colaboradorService.getCiudades();
-        final roles = await _colaboradorService.getRoles();
-        final cargos = await _colaboradorService.getCargos();
-        final estadosCiviles = await _colaboradorService.getEstadosCiviles();
+    try {
+      final ciudades = await _colaboradorService.getCiudades();
+      final roles = await _colaboradorService.getRoles();
+      final cargos = await _colaboradorService.getCargos();
+      final estadosCiviles = await _colaboradorService.getEstadosCiviles();
 
-        emit(ColaboradorDataState(
-          ciudades: ciudades,
-          roles: roles,
-          cargos: cargos,
-          estadosCiviles: estadosCiviles,
-          isLoading: false,
-        ));
-      } catch (e) {
-        print('Error en _onLoadDropdownData: ${e.toString()}');
-        emit(ColaboradorDataState(
-          isLoading: false,
-          errorMessage: 'Error al cargar datos de formulario: ${e.toString()}',
-        ));
-      }
+      emit(currentState.copyWith(
+        ciudades: ciudades,
+        roles: roles,
+        cargos: cargos,
+        estadosCiviles: estadosCiviles,
+        isLoading: false,
+        colaboradores: currentState.colaboradores,
+      ));
+    } catch (e) {
+      print('Error en _onLoadDropdownData: ${e.toString()}');
+      emit(currentState.copyWith(
+        isLoading: false,
+        errorMessage: 'Error al cargar datos de formulario: ${e.toString()}',
+      ));
+    }
+  } else {
+    final oldColaboradores =
+        state is ColaboradorDataState ? (state as ColaboradorDataState).colaboradores : null;
+    emit(ColaboradorLoading());
+    try {
+      final ciudades = await _colaboradorService.getCiudades();
+      final roles = await _colaboradorService.getRoles();
+      final cargos = await _colaboradorService.getCargos();
+      final estadosCiviles = await _colaboradorService.getEstadosCiviles();
+
+      emit(ColaboradorDataState(
+        colaboradores: oldColaboradores,
+        ciudades: ciudades,
+        roles: roles,
+        cargos: cargos,
+        estadosCiviles: estadosCiviles,
+        isLoading: false,
+      ));
+    } catch (e) {
+      print('Error en _onLoadDropdownData: ${e.toString()}');
+      emit(ColaboradorDataState(
+        colaboradores: oldColaboradores,
+        isLoading: false,
+        errorMessage: 'Error al cargar datos de formulario: ${e.toString()}',
+      ));
     }
   }
+}
+
 
   Future<void> _onAddColaborador(
       AddColaborador event, Emitter<ColaboradorState> emit) async {
-    // Guardamos el estado actual
     final currentState = state;
     
     if (currentState is ColaboradorDataState) {
@@ -120,14 +121,12 @@ class ColaboradorBloc extends Bloc<ColaboradorEvent, ColaboradorState> {
         final result = await _colaboradorService.create(event.colaborador);
         print('Resultado de crear colaborador: $result');
         
-        // Emitimos el estado con el mensaje de la API
         emit(ColaboradorAdded(
           colaborador: result['colaborador'],
           message: result['message'],
           success: result['success'],
         ));
         
-        // Solo recargamos la lista si fue exitoso
         if (result['success']) {
           add(LoadColaboradores());
         }
@@ -144,14 +143,12 @@ class ColaboradorBloc extends Bloc<ColaboradorEvent, ColaboradorState> {
         final result = await _colaboradorService.create(event.colaborador);
         print('Resultado de crear colaborador: $result');
         
-        // Emitimos el estado con el mensaje de la API
         emit(ColaboradorAdded(
           colaborador: result['colaborador'],
           message: result['message'],
           success: result['success'],
         ));
         
-        // Solo recargamos la lista si fue exitoso
         if (result['success']) {
           add(LoadColaboradores());
         }
@@ -167,7 +164,6 @@ class ColaboradorBloc extends Bloc<ColaboradorEvent, ColaboradorState> {
 
   Future<void> _onUpdateColaborador(
       UpdateColaborador event, Emitter<ColaboradorState> emit) async {
-    // Guardamos el estado actual
     final currentState = state;
     
     if (currentState is ColaboradorDataState) {
@@ -176,14 +172,12 @@ class ColaboradorBloc extends Bloc<ColaboradorEvent, ColaboradorState> {
       try {
         final result = await _colaboradorService.update(event.id, event.colaborador);
         
-        // Emitimos el estado con el mensaje de la API
         emit(ColaboradorUpdated(
           colaborador: result['colaborador'],
           message: result['message'],
           success: result['success'],
         ));
         
-        // Solo recargamos la lista si fue exitoso
         if (result['success']) {
           add(LoadColaboradores());
         }
@@ -199,14 +193,12 @@ class ColaboradorBloc extends Bloc<ColaboradorEvent, ColaboradorState> {
       try {
         final result = await _colaboradorService.update(event.id, event.colaborador);
         
-        // Emitimos el estado con el mensaje de la API
         emit(ColaboradorUpdated(
           colaborador: result['colaborador'],
           message: result['message'],
           success: result['success'],
         ));
         
-        // Solo recargamos la lista si fue exitoso
         if (result['success']) {
           add(LoadColaboradores());
         }
@@ -222,7 +214,6 @@ class ColaboradorBloc extends Bloc<ColaboradorEvent, ColaboradorState> {
 
   Future<void> _onDeleteColaborador(
       DeleteColaborador event, Emitter<ColaboradorState> emit) async {
-    // Guardamos el estado actual
     final currentState = state;
     
     if (currentState is ColaboradorDataState) {
@@ -231,14 +222,12 @@ class ColaboradorBloc extends Bloc<ColaboradorEvent, ColaboradorState> {
       try {
         final result = await _colaboradorService.delete(event.id);
         
-        // Emitimos el estado con el mensaje de la API
         emit(ColaboradorDeleted(
           id: event.id,
           message: result['message'],
           success: result['success'],
         ));
         
-        // Solo recargamos la lista si fue exitoso
         if (result['success']) {
           add(LoadColaboradores());
         }
@@ -254,14 +243,12 @@ class ColaboradorBloc extends Bloc<ColaboradorEvent, ColaboradorState> {
       try {
         final result = await _colaboradorService.delete(event.id);
         
-        // Emitimos el estado con el mensaje de la API
         emit(ColaboradorDeleted(
           id: event.id,
           message: result['message'],
           success: result['success'],
         ));
         
-        // Solo recargamos la lista si fue exitoso
         if (result['success']) {
           add(LoadColaboradores());
         }

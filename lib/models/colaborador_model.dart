@@ -1,4 +1,3 @@
-// Models for Colaborador
 class Colaborador {
   final int colaboradorId;
   final int personaId;
@@ -161,10 +160,9 @@ class CreatePersonaColaboradorDto {
   });
 
   Map<String, dynamic> toJson() {
-    // Convertir a formato PascalCase para coincidir con el backend en C#
     return {
       'Nombre': nombre,
-      'Apelllido': apellido, // Nota: mantiene las tres 'l' como en el backend
+      'Apelllido': apellido,
       'Sexo': sexo,
       'Email': email,
       'Documentonacionalidentificacion': documentoNacionalIdentificacion,

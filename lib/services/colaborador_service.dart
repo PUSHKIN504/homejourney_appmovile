@@ -16,8 +16,6 @@ class ColaboradorService {
     this.authService,
   });
 
-  // Cliente HTTP personalizado que ignora la verificación de certificados
-  // NOTA: Esto solo debe usarse en desarrollo, nunca en producción
   http.Client _createUnsafeClient() {
     HttpClient httpClient = HttpClient()
       ..badCertificateCallback = ((X509Certificate cert, String host, int port) => true);
@@ -27,13 +25,11 @@ class ColaboradorService {
 
   Future<List<ColaboradorGetAllDto>> getAll() async {
     try {
-      // Usar cliente inseguro para desarrollo
       final client = _createUnsafeClient();
       
       try {
         final url = Uri.parse('$baseUrl/$endpoint');
         
-        // Crear los headers
         final headers = {
           'Content-Type': 'application/json',
         };
@@ -70,19 +66,15 @@ class ColaboradorService {
 
   Future<Map<String, dynamic>> create(CreatePersonaColaboradorDto dto) async {
     try {
-      // Usar cliente inseguro para desarrollo
       final client = _createUnsafeClient();
       
       try {
         final url = Uri.parse('$baseUrl/$endpoint');
         
-        // Convertir el DTO a un mapa
         final dtoMap = dto.toJson();
         
-        // Crear el cuerpo de la solicitud
         final requestBody = json.encode(dtoMap);
         
-        // Crear los headers
         final headers = {
           'Content-Type': 'application/json',
         };
@@ -91,21 +83,17 @@ class ColaboradorService {
           headers['Authorization'] = 'Bearer ${authService!.authToken}';
         }
         
-        // Realizar la solicitud
         final response = await client.post(
           url,
           headers: headers,
           body: requestBody,
         );
         
-        print('Create response status: ${response.statusCode}');
-        print('Create response body: ${response.body}');
         
         Map<String, dynamic> responseData;
         try {
           responseData = json.decode(response.body);
         } catch (e) {
-          print('Error decodificando respuesta: $e');
           responseData = {
             'success': false,
             'message': 'Error decodificando respuesta: ${response.body}',
@@ -140,7 +128,6 @@ class ColaboradorService {
         client.close();
       }
     } catch (e) {
-      print('Error detallado en create: $e');
       return {
         'colaborador': null,
         'message': 'Error al crear colaborador: $e',
@@ -151,19 +138,15 @@ class ColaboradorService {
 
   Future<Map<String, dynamic>> update(int id, CreatePersonaColaboradorDto dto) async {
     try {
-      // Usar cliente inseguro para desarrollo
       final client = _createUnsafeClient();
       
       try {
         final url = Uri.parse('$baseUrl/$endpoint/$id');
         
-        // Convertir el DTO a un mapa
         final dtoMap = dto.toJson();
         
-        // Crear el cuerpo de la solicitud
         final requestBody = json.encode(dtoMap);
         
-        // Crear los headers
         final headers = {
           'Content-Type': 'application/json',
         };
@@ -172,21 +155,17 @@ class ColaboradorService {
           headers['Authorization'] = 'Bearer ${authService!.authToken}';
         }
         
-        // Realizar la solicitud
         final response = await client.put(
           url,
           headers: headers,
           body: requestBody,
         );
         
-        print('Update response status: ${response.statusCode}');
-        print('Update response body: ${response.body}');
         
         Map<String, dynamic> responseData;
         try {
           responseData = json.decode(response.body);
         } catch (e) {
-          print('Error decodificando respuesta: $e');
           responseData = {
             'success': false,
             'message': 'Error decodificando respuesta: ${response.body}',
@@ -221,7 +200,6 @@ class ColaboradorService {
         client.close();
       }
     } catch (e) {
-      print('Error detallado en update: $e');
       return {
         'colaborador': null,
         'message': 'Error al actualizar colaborador: $e',
@@ -232,13 +210,11 @@ class ColaboradorService {
 
   Future<Map<String, dynamic>> delete(int id) async {
     try {
-      // Usar cliente inseguro para desarrollo
       final client = _createUnsafeClient();
       
       try {
         final url = Uri.parse('$baseUrl/$endpoint/$id');
         
-        // Crear los headers
         final headers = {
           'Content-Type': 'application/json',
         };
@@ -247,20 +223,16 @@ class ColaboradorService {
           headers['Authorization'] = 'Bearer ${authService!.authToken}';
         }
         
-        // Realizar la solicitud
         final response = await client.delete(
           url,
           headers: headers,
         );
         
-        print('Delete response status: ${response.statusCode}');
-        print('Delete response body: ${response.body}');
         
         Map<String, dynamic> responseData;
         try {
           responseData = json.decode(response.body);
         } catch (e) {
-          print('Error decodificando respuesta: $e');
           responseData = {
             'success': false,
             'message': 'Error decodificando respuesta: ${response.body}',
@@ -290,7 +262,6 @@ class ColaboradorService {
         client.close();
       }
     } catch (e) {
-      print('Error detallado en delete: $e');
       return {
         'success': false,
         'message': 'Error al eliminar colaborador: $e'

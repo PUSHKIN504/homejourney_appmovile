@@ -22,7 +22,6 @@ class NotificationsScreen extends StatelessWidget {
               ),
               TextButton.icon(
                 onPressed: () {
-                  // Marcar todas como leídas
                 },
                 icon: const Icon(Icons.done_all, size: 16),
                 label: const Text('Marcar todas como leídas'),
@@ -31,7 +30,6 @@ class NotificationsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           
-          // Filtros
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -46,7 +44,6 @@ class NotificationsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           
-          // Lista de notificaciones
           Expanded(
             child: _buildNotificationsList(context),
           ),
@@ -62,7 +59,6 @@ class NotificationsScreen extends StatelessWidget {
         label: Text(label),
         selected: isSelected,
         onSelected: (value) {
-          // Cambiar filtro
         },
         backgroundColor: Theme.of(context).cardColor,
         selectedColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
@@ -212,7 +208,6 @@ class NotificationsScreen extends StatelessWidget {
             vertical: 8,
           ),
           onTap: () {
-            // Ver detalle de notificación
           },
         );
       },

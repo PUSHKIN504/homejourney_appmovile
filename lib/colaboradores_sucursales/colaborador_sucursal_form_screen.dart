@@ -26,8 +26,6 @@ class ColaboradorSucursalFormScreen extends StatefulWidget {
 
 class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  // Se elimina el controller de distancia, ya que se usará un valor hardcoded.
-  // final _distanciaController = TextEditingController();
 
   ColaboradorGetAllDto? _selectedColaborador;
   Sucursal? _selectedSucursal;
@@ -36,22 +34,16 @@ class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormS
   void initState() {
     super.initState();
     
-    // Cargar colaboradores
     context.read<ColaboradorBloc>().add(LoadColaboradores());
     
-    // Cargar sucursales
     context.read<SucursalBloc>().add(LoadSucursales());
     
-    // Si es edición, cargar datos de la asignación
     if (widget.asignacionId != null) {
-      // Aquí cargaríamos los datos de la asignación
     }
   }
 
   @override
   void dispose() {
-    // Se elimina el dispose del controller de distancia
-    // _distanciaController.dispose();
     super.dispose();
   }
 
@@ -77,28 +69,25 @@ class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormS
         return;
       }
       
-      // Usamos un valor hardcoded para distanciaKilometro, por ejemplo 2.0
       const double distanciaHardcoded = 2.0;
       
       if (widget.asignacionId != null) {
-        // Actualizar asignación existente
         context.read<ColaboradorSucursalBloc>().add(
           UpdateColaboradorSucursal(
             id: widget.asignacionId!,
             colaboradorId: _selectedColaborador!.colaboradorId!,
             sucursalId: _selectedSucursal!.sucursalId,
             distanciaKilometro: distanciaHardcoded,
-            usuarioModifica: 1, // Hardcoded
+            usuarioModifica: 1, 
           ),
         );
       } else {
-        // Crear nueva asignación
         context.read<ColaboradorSucursalBloc>().add(
           AddColaboradorSucursal(
             colaboradorId: _selectedColaborador!.colaboradorId!,
             sucursalId: _selectedSucursal!.sucursalId,
             distanciaKilometro: distanciaHardcoded,
-            usuarioCrea: 1, // Hardcoded
+            usuarioCrea: 1, 
           ),
         );
       }
@@ -152,7 +141,6 @@ class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormS
                         ),
                         const SizedBox(height: 16),
                         
-                        // Selector de Colaborador
                         BlocBuilder<ColaboradorBloc, ColaboradorState>(
                           builder: (context, state) {
                             List<ColaboradorGetAllDto> colaboradores = [];
@@ -241,7 +229,6 @@ class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormS
                         
                         const SizedBox(height: 16),
                         
-                        // Selector de Sucursal (ahora usando datos del API)
                         BlocBuilder<SucursalBloc, SucursalState>(
                           builder: (context, state) {
                             List<Sucursal> sucursales = [];
@@ -252,7 +239,6 @@ class _ColaboradorSucursalFormScreenState extends State<ColaboradorSucursalFormS
                             } else if (state is SucursalLoaded) {
                               sucursales = state.sucursales;
                             } else if (state is SucursalError) {
-                              // Mostrar error
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [

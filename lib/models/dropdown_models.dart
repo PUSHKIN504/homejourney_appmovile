@@ -10,7 +10,18 @@ class Ciudad {
       nombre: json['nombre'],
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! Ciudad) return false;
+    return ciudadId == other.ciudadId;
+  }
+
+  @override
+  int get hashCode => ciudadId.hashCode;
 }
+
 
 class Rol {
   final int rolId;
@@ -24,7 +35,18 @@ class Rol {
       nombre: json['nombre'],
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! Rol) return false;
+    return rolId == other.rolId;
+  }
+
+  @override
+  int get hashCode => rolId.hashCode;
 }
+
 
 class Cargo {
   final int cargoId;
@@ -38,7 +60,18 @@ class Cargo {
       nombre: json['nombre'],
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! Cargo) return false;
+    return cargoId == other.cargoId;
+  }
+
+  @override
+  int get hashCode => cargoId.hashCode;
 }
+
 
 class EstadoCivil {
   final int estadoCivilId;
@@ -52,5 +85,14 @@ class EstadoCivil {
       nombre: json['nombre'],
     );
   }
-}
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! EstadoCivil) return false;
+    return estadoCivilId == other.estadoCivilId;
+  }
+
+  @override
+  int get hashCode => estadoCivilId.hashCode;
+}

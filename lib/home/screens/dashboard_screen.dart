@@ -21,10 +21,7 @@ class DashboardScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Un Expanded (o Spacer) que toma el espacio disponible
-              // empujando la tarjeta hacia la parte inferior
               const Expanded(child: SizedBox()),
-              // Tarjeta de bienvenida pegada abajo
               Card(
                 elevation: 4,
                 shape: RoundedRectangleBorder(

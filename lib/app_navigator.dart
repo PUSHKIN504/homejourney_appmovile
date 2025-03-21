@@ -25,8 +25,7 @@ class _AppNavigatorState extends State<AppNavigator> {
     const DashboardScreen(),
     const ColaboradorListScreen(),
     const ColaboradorSucursalListScreen(),
-    const ViajesScreen(), // Nueva pantalla de viajes
-    // const NotificationsScreen(),
+    const ViajesScreen(), 
     const ProfileScreen(),
   ];
 
@@ -34,12 +33,10 @@ class _AppNavigatorState extends State<AppNavigator> {
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
       builder: (context, state) {
-        // Si no está autenticado, mostrar la pantalla de login
         if (state is! LoginSuccess) {
           return const LoginPage();
         }
         
-        // Si está autenticado, mostrar la aplicación con el menú de navegación
         return Scaffold(
           body: _screens[_currentIndex],
           bottomNavigationBar: BottomNavigationMenu(

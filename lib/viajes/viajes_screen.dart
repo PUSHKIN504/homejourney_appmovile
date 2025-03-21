@@ -25,7 +25,6 @@ class _ViajesScreenState extends State<ViajesScreen> with TickerProviderStateMix
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     
-    // Cargar datos iniciales
     context.read<ViajeBloc>().add(LoadColaboradoresEvent());
     context.read<ViajeBloc>().add(LoadTransportistasEvent());
     context.read<ViajeBloc>().add(LoadSucursalesEvent());
@@ -57,7 +56,6 @@ class _ViajesScreenState extends State<ViajesScreen> with TickerProviderStateMix
             message: state.successMessage!,
             isSuccess: true,
           );
-          // Ejecuta el reset de inmediato o mediante otra lógica
           context.read<ViajeBloc>().add(ResetViajeStateEvent());
         }
         
@@ -65,7 +63,6 @@ class _ViajesScreenState extends State<ViajesScreen> with TickerProviderStateMix
           _tabController.animateTo(state.currentTab);
         }
         
-        // Mostrar mensaje cuando se agrupan los empleados
         if (state.status == ViajeStatus.loaded && 
             state.clusteredEmployees.isNotEmpty && 
             state.currentTab == 1) {
@@ -96,7 +93,6 @@ class _ViajesScreenState extends State<ViajesScreen> with TickerProviderStateMix
                     Tab(text: 'Transportistas y Viaje'),
                   ],
                   onTap: (index) {
-                    // No permitir cambiar de tab manualmente
                     if (index != state.currentTab) {
                       _tabController.animateTo(state.currentTab);
                     }
@@ -205,7 +201,6 @@ class _ViajesScreenState extends State<ViajesScreen> with TickerProviderStateMix
   }
 
   Widget _buildTransportistasViajeTab(ViajeState state) {
-    // Generar opciones de hora
     final timeOptions = _generateTimeOptions();
     
     return Column(
@@ -252,14 +247,12 @@ class _ViajesScreenState extends State<ViajesScreen> with TickerProviderStateMix
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
 
-                // Formulario del viaje
                 Card(
                   elevation: 2,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       children: [
-                        // Selector de Sucursal
                         DropdownButtonFormField<int>(
                           decoration: InputDecoration(
                             labelText: 'Sucursal',
@@ -287,7 +280,6 @@ class _ViajesScreenState extends State<ViajesScreen> with TickerProviderStateMix
                         
                         const SizedBox(height: 16),
                         
-                        // Selector de Hora
                         DropdownButtonFormField<String>(
                           decoration: InputDecoration(
                             labelText: 'Hora de Viaje',
@@ -315,7 +307,6 @@ class _ViajesScreenState extends State<ViajesScreen> with TickerProviderStateMix
                         
                         const SizedBox(height: 16),
                         
-                        // Selector de Fecha
                         InkWell(
                           onTap: () async {
                             final picked = await showDatePicker(
@@ -397,10 +388,10 @@ class _ViajesScreenState extends State<ViajesScreen> with TickerProviderStateMix
                           transportistaIds: state.selectedTransportistas
                               .map((t) => t.transportistaId!)
                               .toList(),
-                          estadoId: 4, // Estado hardcoded como en Angular
+                          estadoId: 4, 
                           viajeHora: state.viajeHora!,
                           viajeFecha: state.viajeFecha!,
-                          usuarioCrea: 1, // Usuario hardcoded como en Angular
+                          usuarioCrea: 1, 
                           monedaId: state.monedaId,
                         );
 

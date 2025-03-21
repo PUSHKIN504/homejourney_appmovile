@@ -1,10 +1,7 @@
 class DataRepository {
-  // Simulate fetching data from an API
   Future<List<String>> fetchItems() async {
-    // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
     
-    // Return mock data
     return [
       'Item 1',
       'Item 2',

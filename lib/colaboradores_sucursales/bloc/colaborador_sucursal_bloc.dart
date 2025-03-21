@@ -63,7 +63,7 @@ class ColaboradorSucursalBloc extends Bloc<ColaboradorSucursalEvent, Colaborador
         colaboradorId: event.colaboradorId,
         sucursalId: event.sucursalId,
         distanciaKilometro: event.distanciaKilometro,
-        usuarioCrea: 1, // Default value
+        usuarioCrea: 1, 
         usuarioModifica: event.usuarioModifica,
         fechaModifica: DateTime.now(),
       );

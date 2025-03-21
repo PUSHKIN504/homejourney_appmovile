@@ -37,7 +37,6 @@ class _HomeDashboardState extends State<HomeDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    // Obtener información del usuario desde el estado de login
     final loginState = context.read<LoginBloc>().state;
     String userName = 'Usuario';
     String userRole = 'Invitado';
@@ -148,7 +147,6 @@ class _HomeDashboardState extends State<HomeDashboard> {
                 style: TextStyle(color: Colors.red),
               ),
               onTap: () {
-                // Mostrar diálogo de confirmación
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
@@ -162,7 +160,6 @@ class _HomeDashboardState extends State<HomeDashboard> {
                       TextButton(
                         onPressed: () {
                           Navigator.pop(context);
-                          // Aquí iría la lógica para cerrar sesión
                           context.read<LoginBloc>().add(LoginReset());
                           Navigator.pushReplacementNamed(context, '/login');
                         },
@@ -193,13 +190,11 @@ class _HomeDashboardState extends State<HomeDashboard> {
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: () {
-                // Implementar búsqueda
               },
             ),
           IconButton(
             icon: const Icon(Icons.more_vert),
             onPressed: () {
-              // Mostrar menú de opciones
               showMenu(
                 context: context,
                 position: RelativeRect.fromLTRB(
@@ -276,9 +271,8 @@ class _HomeDashboardState extends State<HomeDashboard> {
   }
 
   Widget? _getFloatingActionButton() {
-    // Mostrar FAB solo en ciertas pantallas
     switch (_currentIndex) {
-      case 1: // Colaboradores
+      case 1: 
         return FloatingActionButton(
           onPressed: () {
             Navigator.push(
@@ -287,7 +281,6 @@ class _HomeDashboardState extends State<HomeDashboard> {
                 builder: (context) => const ColaboradorFormScreen(),
               ),
             ).then((_) {
-              // Recargar datos cuando regrese
               if (_currentIndex == 1 && _screens[1] is ColaboradorListScreen) {
                 context.read<ColaboradorBloc>().add(LoadColaboradores());
               }
@@ -296,7 +289,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
           backgroundColor: Theme.of(context).colorScheme.primary,
           child: const Icon(Icons.add),
         );
-      case 2: // Asignación a Sucursales
+      case 2: 
         return FloatingActionButton(
           onPressed: () {
             Navigator.push(
@@ -305,7 +298,6 @@ class _HomeDashboardState extends State<HomeDashboard> {
                 builder: (context) => const ColaboradorSucursalFormScreen(),
               ),
             ).then((_) {
-              // Recargar datos cuando regrese
               if (_currentIndex == 2 && _screens[2] is ColaboradorSucursalListScreen) {
                 context.read<ColaboradorSucursalBloc>().add(LoadColaboradoresSucursales());
               }

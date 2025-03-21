@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 class BottomNavigationMenu extends StatelessWidget {
   final int currentIndex;
@@ -37,7 +38,7 @@ class BottomNavigationMenu extends StatelessWidget {
           onTap: onTap,
           type: BottomNavigationBarType.fixed,
           backgroundColor: Theme.of(context).colorScheme.surface,
-          selectedItemColor: Theme.of(context).colorScheme.primary,
+          selectedItemColor: AppTheme.farsimanBlue,
           unselectedItemColor: Colors.grey,
           showUnselectedLabels: true,
           elevation: 0,
@@ -58,10 +59,6 @@ class BottomNavigationMenu extends StatelessWidget {
               icon: Icon(Icons.directions_car),
               label: 'Viajes',
             ),
-            // BottomNavigationBarItem(
-            //   icon: Icon(Icons.notifications),
-            //   label: 'Alertas',
-            // ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: 'Perfil',

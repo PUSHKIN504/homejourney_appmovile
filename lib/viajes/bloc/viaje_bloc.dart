@@ -113,7 +113,6 @@ class ViajeBloc extends Bloc<ViajeEvent, ViajeState> {
     SelectTransportistasEvent event, 
     Emitter<ViajeState> emit
   ) {
-    // Validar que el número de transportistas no exceda el número de clusters
     if (event.selectedTransportistas.length > state.clusteredEmployees.length) {
       emit(state.copyWith(
         status: ViajeStatus.error,

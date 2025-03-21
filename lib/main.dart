@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:homejourney_appmovile/colaboradores_sucursales/bloc/colaborador_sucursal_bloc.dart';
 import 'package:homejourney_appmovile/colaboradores_sucursales/bloc/sucursal_bloc.dart';
 import 'package:homejourney_appmovile/home/bloc/home_event.dart';
+import 'package:homejourney_appmovile/theme/app_theme.dart';
 import 'package:homejourney_appmovile/viajes/bloc/viaje_bloc.dart';
 import 'package:intl/intl.dart';
 import 'home/home_dashboard.dart';
@@ -32,40 +33,37 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Definir la URL base para todos los servicios
-    const String baseApiUrl = 'https://172.28.208.1:45456'; // Reemplaza con tu URL real
+    const String baseApiUrl = 'https://172.29.6.228:45456';
     
-    // Crear repositorios
     final dataRepository = DataRepository();
     
-    // Crear servicios
     final authService = AuthService(
       baseUrl: baseApiUrl,
     );
     
     final colaboradorService = ColaboradorService(
       baseUrl: baseApiUrl,
-      authService: authService, // Pasar el servicio de autenticación
+      authService: authService, 
     );
     
     final colaboradorSucursalService = ColaboradorSucursalService(
       baseUrl: baseApiUrl,
-      authService: authService, // Pasar el servicio de autenticación
+      authService: authService, 
     );
     
     final sucursalService = SucursalService(
       baseUrl: baseApiUrl,
-      authService: authService, // Pasar el servicio de autenticación
+      authService: authService, 
     );
     
     final transportistaService = TransportistaService(
       baseUrl: baseApiUrl,
-      authService: authService, // Pasar el servicio de autenticación
+      authService: authService, 
     );
     
     final viajeService = ViajeService(
       baseUrl: baseApiUrl,
-      authService: authService, // Pasar el servicio de autenticación
+      authService: authService, 
     );
     
     return MultiBlocProvider(
@@ -106,39 +104,11 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter BLoC Demo',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData.light(),
-        darkTheme: ThemeData.dark().copyWith(
-          primaryColor: Colors.teal,
-          colorScheme: const ColorScheme.dark(
-            primary: Colors.teal,
-            secondary: Colors.tealAccent,
-            surface: Color(0xFF1E1E1E),
-            background: Color(0xFF121212),
-          ),
-          scaffoldBackgroundColor: const Color(0xFF121212),
-          cardColor: const Color(0xFF1E1E1E),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Color(0xFF1E1E1E),
-            elevation: 0,
-          ),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.teal,
-              foregroundColor: Colors.white,
-            ),
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            labelStyle: TextStyle(color: Colors.grey.shade400),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.teal, width: 2),
-            ),
-          ),
-        ),
-        themeMode: ThemeMode.dark, // Force dark theme
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.dark,
         home: const AppNavigator(),
       ),
     );
   }
 }
-

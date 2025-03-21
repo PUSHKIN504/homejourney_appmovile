@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Colores del logo de Farsiman
-  static const Color farsimanBlue = Color(0xFF003B71); // Azul oscuro del logo
-  static const Color farsimanRed = Color(0xFFE31E24);  // Rojo del logo
+  static const Color farsimanBlue = Color(0xFF003B71); 
+  static const Color farsimanRed = Color(0xFFE31E24);  
   
-  // Colores para el tema oscuro
   static const Color darkBackground = Color(0xFF121212);
   static const Color darkSurface = Color(0xFF1E1E1E);
   static const Color darkCard = Color(0xFF252525);
   
-  // Tema claro
   static final ThemeData lightTheme = ThemeData.light().copyWith(
     primaryColor: farsimanBlue,
     colorScheme: const ColorScheme.light(

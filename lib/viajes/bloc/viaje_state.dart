@@ -18,7 +18,6 @@ class ViajeState extends Equatable {
   final int currentTab;
   final List<ViajesdetallesCreateClusteredDto> clusteredEmployees;
   
-  // Campos del formulario
   final int? sucursalId;
   final String? viajeHora;
   final DateTime? viajeFecha;
